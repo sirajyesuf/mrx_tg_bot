@@ -6,12 +6,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "doctrine/dbal": "^3.3",
         "filament/filament": "^2.0",
         "filament/forms": "^2.10",
         "guzzlehttp/guzzle": "^7.2",
+        "html2text/html2text": "^4.3",
         "laravel/framework": "^9.2",
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
+        "mohamedsabil83/filament-forms-tinyeditor": "^1.5",
         "nutgram/nutgram": "^2.1"
     },
     "require-dev": {

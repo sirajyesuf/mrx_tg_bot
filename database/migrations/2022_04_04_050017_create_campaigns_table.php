@@ -25,6 +25,7 @@ return new class extends Migration
             $table->text('bm_text');
             $table->dateTime('bm_apply_btn_active_duration');
             $table->string('bm_apply_btn_url');
+            $table->json('payment_methods');
             $table->boolean('status')->default(false);
             $table->json('message_ids')->nullable();
             $table->timestamps();

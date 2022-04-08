@@ -16,6 +16,6 @@ class Client extends Model
 
     public function campaigns()
     {
-        return $this->belongsToMany(CampaignClient::class);
+        return $this->belongsToMany(Campaign::class)->using(CampaignClient::class);
     }
 }

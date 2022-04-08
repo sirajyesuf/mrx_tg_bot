@@ -10,6 +10,7 @@ class Approved
     public function __invoke(Nutgram $bot, $next)
     {
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
+        // dd($client);
         $client->status == 2 ? $next($bot) : $this->notify($bot, $client);
     }
 

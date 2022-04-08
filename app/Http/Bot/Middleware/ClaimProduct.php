@@ -15,8 +15,10 @@ class ClaimProduct
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $campaign = Campaign::firstWhere('id', $campaign_id);
         if (!is_null($campaign) & $this->clientCanClaim($campaign, $client)) {
+            $next($bot);
+        } else {
+            // reason out here
         }
-        $next($bot);
     }
 
     protected function notify(Nutgram $bot, Client $client)

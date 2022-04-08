@@ -28,11 +28,24 @@ class Keyboard
             );
     }
 
-    public static function claimNow($campaign)
+    public static function claimNow($parameter)
     {
         return InlineKeyboardMarkup::make()
             ->addRow(
-                InlineKeyboardButton::make(text: "Claim Now", url: "http://t.me/mrx_camp_bot?start=$campaign->id")
+                InlineKeyboardButton::make(text: "Claim Now", url: "http://t.me/mrx_camp_bot?start=$parameter")
+            );
+    }
+
+    public static function applyDeny($client, $campaign)
+    {
+        $apply_btn_url = route('apply_btn', ['client' => $client->id, 'campaign' => $campaign->id]);
+
+        return InlineKeyboardMarkup::make()
+            ->addRow(
+                InlineKeyboardButton::make(text: "Apply", url: $apply_btn_url)
+            )
+            ->addRow(
+                InlineKeyboardButton::make(text: "Deny", url: "http://t.me/mrx_camp_bot?start=$campaign->id")
             );
     }
 }

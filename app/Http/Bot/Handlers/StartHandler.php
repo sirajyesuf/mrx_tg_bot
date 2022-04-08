@@ -11,7 +11,7 @@ class StartHandler
     use Handler;
     public function __invoke(Nutgram $bot)
     {
-        dump($bot->message());
+        dump($bot->message()->text);
         $user = $bot->getData('user');
         $text = "wellcome $user->first_name";
         $this->sendMessage($bot, $text, ['reply_markup' => Keyboard::mainMenu()]);

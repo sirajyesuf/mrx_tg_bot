@@ -16,11 +16,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use SergiX44\Nutgram\Nutgram;
+use App\Models\Interest;
 
 class ListClients extends ListRecords
 {
     protected static string $resource = ClientResource::class;
-    
+
 
     protected function getTableColumns(): array
     {
@@ -86,8 +87,11 @@ class ListClients extends ListRecords
 
             $geo[$ctry] = $ctry;
         }
+        $interestes = array();
+        foreach (Interest::all()->pluck('name') as $int) {
+            $interestes[$int] = $int;
+        }
         return [
-            Filter::make('prime')->label('Prime'),
             SelectFilter::make('status')
                 ->options([
                     1 => 'Pending',
@@ -97,7 +101,8 @@ class ListClients extends ListRecords
                 ->column('status'),
             SelectFilter::make('geo')
                 ->options($geo)
-                ->column('geo')
+                ->column('geo'),
+
 
         ];
     }

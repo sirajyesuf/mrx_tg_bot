@@ -16,6 +16,14 @@ class Client extends Model
 
     public function campaigns()
     {
-        return $this->belongsToMany(Campaign::class)->using(CampaignClient::class);
+        return $this->belongsToMany(Campaign::class)->using(CampaignClient::class)
+            ->as('claim')
+            ->withPivot('product_id', 'tg_message_id', 'status', 'claim_target_chat_id')
+            ->withTimestamps();
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

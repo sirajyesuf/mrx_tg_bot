@@ -10,6 +10,14 @@ use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 class Keyboard
 {
 
+    public static function cancelBtn()
+    {
+        return ReplyKeyboardMarkup::make(resize_keyboard: true)
+            ->addRow(
+                KeyboardButton::make('❌Cancel')
+            );
+    }
+
     public static function mainMenu()
     {
 
@@ -19,9 +27,6 @@ class Keyboard
             )
             ->addRow(
                 KeyboardButton::make('Payment')
-            )
-            ->addRow(
-                KeyboardButton::make('FAQ')
             )
             ->addRow(
                 KeyboardButton::make('Help')
@@ -46,6 +51,18 @@ class Keyboard
             )
             ->addRow(
                 InlineKeyboardButton::make(text: "Deny", url: "http://t.me/mrx_camp_bot?start=$campaign->id")
+            );
+    }
+
+    public static function requestPayment()
+    {
+
+        return InlineKeyboardMarkup::make()
+            ->addRow(
+                InlineKeyboardButton::make(text: "Back", callback_data: 'back_list_campaigns')
+            )
+            ->addRow(
+                InlineKeyboardButton::make(text: "Request Payment", callback_data: "request_payment")
             );
     }
 }

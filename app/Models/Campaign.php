@@ -24,6 +24,13 @@ class Campaign extends Model
         return $this->belongsToMany(Client::class)->using(CampaignClient::class);
     }
 
+    public function orders()
+    {
+        return $this->belongsToMany(Client::class)
+            ->using(Order::class)
+            ->as('order');
+    }
+
 
     // public function bmApplyBtnActiveDuration(): Attribute
     // {

@@ -2,26 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\InterestResource\Pages;
-use App\Filament\Resources\InterestResource\RelationManagers;
-use App\Models\Interest;
+use App\Filament\Resources\OrderResource\Pages;
+use App\Filament\Resources\OrderResource\RelationManagers;
+use App\Models\Order;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
 
-class InterestResource extends Resource
+class OrderResource extends Resource
 {
-    protected static ?string $model = Interest::class;
+    protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-star';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')->required(),
+                //
             ]);
     }
 
@@ -29,7 +29,7 @@ class InterestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                //
             ])
             ->filters([
                 //
@@ -46,9 +46,9 @@ class InterestResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListInterests::route('/'),
-            'create' => Pages\CreateInterest::route('/create'),
-            'edit' => Pages\EditInterest::route('/{record}/edit'),
+            'index' => Pages\ListOrders::route('/'),
+            // 'create' => Pages\CreateOrder::route('/create'),
+            // 'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
 }

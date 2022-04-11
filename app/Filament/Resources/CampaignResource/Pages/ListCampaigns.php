@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Actions\ButtonAction;
+use Filament\Tables\Actions\IconButtonAction;
 use App\services\CampaignService;
 use SergiX44\Nutgram\Nutgram;
 use Filament\Tables\Columns\ImageColumn;
@@ -59,14 +60,17 @@ class ListCampaigns extends ListRecords
                 ->action('publisheCampaign')
                 ->requiresConfirmation()
                 ->color('primary')
-                ->hidden(fn (Campaign $record): bool => $record->status)
+                ->hidden(fn (Campaign $record): bool => $record->status),
+            IconButtonAction::make('view')
+            ->url(fn (Campaign $record): string => "campaigns/$record->id")
+            ->icon('heroicon-o-eye')
 
         ];
     }
 
     public function publisheCampaign(Nutgram $bot, Campaign $record)
     {
-      
+
         // post 
         $message_ids = CampaignService::post($bot, $record);
         // update the campaign status

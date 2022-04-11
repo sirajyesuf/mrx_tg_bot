@@ -14,10 +14,17 @@ class Order extends Model
         'status' => OrderStatus::class,
     ];
 
+
+
     protected $guarded = [];
 
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class);
     }
 }

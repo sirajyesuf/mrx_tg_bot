@@ -29,6 +29,7 @@ class PaymentHandler extends Conversation
 
             'campaign_id' => null,
             'proof' => null,
+            'file_id' => null,
             'information' => null,
             'payment_method' => null
 
@@ -68,19 +69,26 @@ class PaymentHandler extends Conversation
             $this->askCampaign($bot, $claims);
         }
         if ($message and $que == 'asktouploadproof') {
+
             $photo = $message->photo[0];
             $photo_id = $photo->file_id;
-            $order['proof'] = $photo_id;
+            $order['file_id'] = $photo_id;
+            // name of the proof image
+            $order['proof'] = $photo->file_unique_id . ".png";
             $order['information'] = $message->caption;
-            // $file = $bot->getFile($photo_id);
-            // $path = storage_path("orders/$photo_id");
-            // $bot->downloadFile($file, $path);
             $bot->setUserData('order', $order, $bot->chatId());
             $this->askPaymentMethod($bot);
         }
         if ($bot->isCallbackQuery() and $que == "askpaymentmethod") {
             if ($callback_query->data == 'submit') {
                 // create the order
+                $file = $bot->getFile($order['file_id']);
+                $path = storage_path("app/public/" . $order['proof']);
+                $res = $bot->downloadFile($file, $path);
+                dump($order['proof']);
+                dump($res);
+                unset($order['file_id']);
+                $order['proof'] = "storage/" . $order['proof'];
                 $client->orders()->create($order);
                 // send sucess message
                 $text = "the payment request send successfully. please await for approval.";

@@ -14,49 +14,47 @@ class ClaimProduct
         $campaign_id = $text . explode(" ", $text)[1];
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $campaign = Campaign::firstWhere('id', $campaign_id);
-        if (!is_null($campaign) & $this->clientCanClaim($campaign, $client)) {
+        $num_claim = $campaign->clients()->wherePivot('status', 1)->count();
+        if (is_null($campaign->gm_interest) and $num_claim < $campaign->gm_claim_now_btn_num_click) {
             $next($bot);
         } else {
-            // reason out here
+            $result = $this->clientCanClaim($campaign, $client);
+            if ($result and $num_claim < $campaign->gm_claim_now_btn_num_click) {
+
+                $next($bot);
+            } else {
+
+                $this->notify($bot, $client);
+            }
         }
     }
 
     protected function notify(Nutgram $bot, Client $client)
     {
-        if ($client->status == 1) {
-            $text = "your account is pending. please wait for approval.";
-            $bot->sendMessage(
-                $text
-            );
-        }
-        if ($client->status == 3) {
-            $text = "your account is denied. please wait for approval.";
-            $bot->sendMessage(
-                $text
-            );
-        }
+        $text = "your are not legible to claim this campaign.sorry.";
+        $bot->sendMessage(
+            $text
+        );
     }
 
     protected function clientCanClaim($campaign, $client)
     {
-        $prime = false;
+        $prime = true;
         $interestes = false;
         $geo = false;
-        $num_claim = false;
 
-        if (!$campaign->gm_interest & !$campaign->gm_geo) {
-            $prime = $geo = $interestes = true;
-        } else {
-
-
-            if (in_array($client->geo, $campaign->gm_geo)) {
-                $geo = true;
+        if (in_array($client->geo, $campaign->gm_geo)) {
+            $geo = true;
+        }
+        foreach ($client->interestes as $int) {
+            if (in_array($int, $campaign->gm_interest)) {
+                $interestes = true;
+                break;
             }
-            foreach ($client->interestes as $int) {
-                if (in_array($client->geo, $campaign->gm_geo)) {
-                    $interestes = true;
-                    break;
-                }
+        }
+        if (in_array("prime", $campaign->gm_interest)) {
+            if (!$client->prime) {
+                $prime = false;
             }
         }
 

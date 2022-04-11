@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use SergiX44\Nutgram\Nutgram;
 use App\Models\Interest;
+use Filament\Tables\Filters\MultiSelectFilter;
 
 class ListClients extends ListRecords
 {
@@ -53,7 +54,9 @@ class ListClients extends ListRecords
                     3 => "Denied"
                 ]),
             TextColumn::make('created_at')->label('Joined')->date(),
-            TagsColumn::make('interestes')
+            TagsColumn::make('interestes'),
+            BadgeColumn::make('orders_count')->counts('orders')->label('Orders')
+
 
         ];
     }
@@ -62,7 +65,7 @@ class ListClients extends ListRecords
     {
         return [
             BulkAction::make('Approve')
-                ->action('approved')
+                ->action('approve')
                 ->requiresConfirmation()
                 ->color('success')
                 ->icon('heroicon-o-check'),
@@ -88,7 +91,7 @@ class ListClients extends ListRecords
             $geo[$ctry] = $ctry;
         }
         $interestes = array();
-        foreach (Interest::all()->pluck('name') as $int) {
+        foreach (Interest::where('name','!=','prime')->get()->pluck('name') as $int) {
             $interestes[$int] = $int;
         }
         return [
@@ -102,24 +105,31 @@ class ListClients extends ListRecords
             SelectFilter::make('geo')
                 ->options($geo)
                 ->column('geo'),
+            // MultiSelectFilter::make('interest')
+            //     ->options($interestes)
+            //     ->column('interestes'),
+
 
 
         ];
     }
 
-    public function approved(Nutgram $bot, Collection $records)
+    public function approve(Nutgram $bot, Collection $records)
     {
+        $text = "Welcome, your account was approved now you can start claiming products.";
         foreach ($records as $record) {
             $record->update(['status' => 2]);
-            ClientService::approved($bot, $record);
+            ClientService::approve($bot, $text, $record->tg_user_id);
         }
     }
 
     public function deny(Nutgram $bot, Collection $records)
     {
+        $text = "Your account was denied.";
+
         foreach ($records as $record) {
             $record->update(['status' => 3]);
-            ClientService::denied($bot, $record);
+            ClientService::deny($bot, $text, $record->tg_user_id);
         }
     }
 }

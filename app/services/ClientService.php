@@ -7,19 +7,17 @@ use SergiX44\Nutgram\Nutgram;
 
 class ClientService
 {
-    public static function approved(Nutgram $bot, $record)
+    public static function approve(Nutgram $bot, $text, $tg_user_id)
     {
-        $text = "Welcome, your account was approved now you can start claiming products.";
         $bot->sendMessage($text, [
-            'chat_id' => $record->tg_user_id
+            'chat_id' => $tg_user_id
         ]);
     }
 
-    public static function denied(Nutgram $bot, $record)
+    public static function deny(Nutgram $bot, $text, $tg_user_id)
     {
-        $text = "Your account was denied.";
         $bot->sendMessage($text, [
-            'chat_id' => $record->tg_user_id
+            'chat_id' => $tg_user_id
         ]);
     }
 }

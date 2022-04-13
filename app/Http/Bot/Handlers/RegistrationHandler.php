@@ -210,12 +210,13 @@ class RegistrationHandler extends Conversation
     {
         $int = "";
         foreach ($user->interestes as $fav) {
-            $int = $int . "$fav\n";
+            $int = $int . "\t\t\t\t☑️" . $fav . "\n";
         }
         $_prime = $user->prime ? 'Yes' : 'No';
-        $text = "Profile\n\nGeo: $user->geo\nInterestes:$int\nPrime:$_prime";
+        $text = "🙍Profile\n\n<b>🌍Geo:</b> $user->geo\n\n<b>⭐Interestes:</b> \n$int\n<b>🎥Prime:</b>$_prime";
         $this->sendMessage($bot, $text, [
-            'reply_markup' => Keyboard::mainMenu()
+            'reply_markup' => Keyboard::mainMenu(),
+            'parse_mode' => 'html'
         ]);
     }
 }

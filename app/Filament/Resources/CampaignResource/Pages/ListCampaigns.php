@@ -14,6 +14,9 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Actions\ButtonAction;
 use Filament\Tables\Actions\IconButtonAction;
 use App\services\CampaignService;
+use Carbon\Carbon;
+use Carbon\CarbonInterval;
+use DateInterval;
 use SergiX44\Nutgram\Nutgram;
 use Filament\Tables\Columns\ImageColumn;
 
@@ -23,6 +26,8 @@ class ListCampaigns extends ListRecords
 
     protected function getTableColumns(): array
     {
+
+
         return [
 
             ImageColumn::make('bm_image')->label('Campaign'),
@@ -30,15 +35,17 @@ class ListCampaigns extends ListRecords
             TagsColumn::make('gm_geo')->label('Geo')->default('not applyed'),
             TagsColumn::make('payment_methods')->label('payment_methods')->default('not applyed'),
             TextColumn::make('gm_claim_now_btn_num_click')->label('Num_Claim'),
-            TextColumn::make('bm_apply_btn_active_duration')->label('Apply_Btn_Duration')->dateTime(),
-            BadgeColumn::make('status')
-                ->colors([
-                    'danger' => fn ($state): bool => $state == false,
-                    'success' => fn ($state): bool => $state == true,
-                ])->enum([
-                    false => "Drafted",
-                    true => "Published"
-                ])
+            TextColumn::make('bm_apply_btn_active_duration')->label('Apply_Btn_Duration')
+                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration)->diffForHumans($record->updated_at)),
+            // ->formatStateUsing(fn (DateInterval $state): string => $state->d . ' days, ' . $state->h . ' hours, ' . $state->i . ' minutes'),
+            // BadgeColumn::make('status')
+            //     ->colors([
+            //         'danger' => fn ($state): bool => $state == false,
+            //         'success' => fn ($state): bool => $state == true,
+            //     ])->enum([
+            //         false => "Drafted",
+            //         true => "Published"
+            //     ])
         ];
     }
 
@@ -62,18 +69,26 @@ class ListCampaigns extends ListRecords
                 ->color('primary')
                 ->hidden(fn (Campaign $record): bool => $record->status),
             IconButtonAction::make('view')
-            ->url(fn (Campaign $record): string => "campaigns/$record->id")
-            ->icon('heroicon-o-eye')
+                ->url(fn (Campaign $record): string => "campaigns/$record->id")
+                ->icon('heroicon-o-eye')
 
         ];
     }
 
     public function publisheCampaign(Nutgram $bot, Campaign $record)
     {
+        // check for the presence of previous post if found delete them first
+
+        if ($record->message_ids) {
+
+            CampaignService::deleteGroupMessage($record->message_ids);
+        }
 
         // post 
         $message_ids = CampaignService::post($bot, $record);
         // update the campaign status
-        // $record->update(['message_ids' => $message_ids, 'status' => true]);
+        $record->update(['message_ids' => $message_ids]);
+        //send success notification
+        $this->notify('success', 'Published');
     }
 }

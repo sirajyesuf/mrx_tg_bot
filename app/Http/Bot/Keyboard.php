@@ -50,7 +50,7 @@ class Keyboard
                 InlineKeyboardButton::make(text: "Apply", url: $apply_btn_url)
             )
             ->addRow(
-                InlineKeyboardButton::make(text: "Deny", url: "http://t.me/mrx_camp_bot?start=$campaign->id")
+                InlineKeyboardButton::make(text: "Deny", callback_data: "deny $campaign->id")
             );
     }
 

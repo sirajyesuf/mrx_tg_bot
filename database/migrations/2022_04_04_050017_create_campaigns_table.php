@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('gm_claim_now_btn_num_click');
             $table->string('bm_image');
             $table->text('bm_text');
-            $table->dateTime('bm_apply_btn_active_duration');
+            $table->timestamp('bm_apply_btn_active_duration');
             $table->string('bm_apply_btn_url');
             $table->json('payment_methods');
             $table->boolean('status')->default(false);

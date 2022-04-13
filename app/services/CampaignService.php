@@ -6,6 +6,7 @@ use SergiX44\Nutgram\Nutgram;
 use App\Http\Bot\Keyboard;
 use Html2Text\Html2Text as HTML2TEXT;
 use App\Http\Bot\Bot;
+use Illuminate\Support\Carbon;
 
 class CampaignService extends Bot
 {
@@ -16,7 +17,6 @@ class CampaignService extends Bot
         // remove unsupported html tags
         $html = new HTML2TEXT($campaign->gm_text);
         $text = $html->getText();
-
         foreach ($target_chats as $target_chat) {
             $btn_parameter = $campaign->id . $target_chat;
             $response = $bot->sendMessage(
@@ -27,6 +27,8 @@ class CampaignService extends Bot
                     'reply_markup' => Keyboard::claimNow($btn_parameter)
                 ]
             );
+
+
             $message_ids[] = $response->message_id;
         }
 
@@ -40,44 +42,43 @@ class CampaignService extends Bot
         $target_user_id = $bot->chatId();
         $btn = Keyboard::applyDeny($client, $campaign);
         // remove unsupported html tags
-        $html = new HTML2TEXT($campaign->gm_text);
+        $html = new HTML2TEXT($campaign->bm_text);
         $text = $html->getText();
-        // $photo = asset($campaign->bm_image);
+        $app_env = env('APP_ENV');
+        if ($app_env == 'production') {
+            $photo  = asset("storage/" . $campaign->bm_image);
+        } else {
+            $photo = fopen(public_path("storage/" . $campaign->bm_image), 'rb');
+        }
 
-        // dump($photo);
 
-        // $response = $bot->sendPhoto(
-        //     $photo,
-        //     [
-        //         'chat_id' => $target_user_id,
-        //         'caption' => $text,
-        //         'parse_mode' => 'html',
-        //         'reply_markup' => $btn
-        //     ]
-        // );
-
-        $response = $bot->sendMessage(
-            $text,
+        $response = $bot->sendPhoto(
+            $photo,
             [
                 'chat_id' => $target_user_id,
+                'caption' => $text,
                 'parse_mode' => 'html',
                 'reply_markup' => $btn
             ]
         );
 
+
         return $response->message_id;
     }
 
 
-    public static function editBotMessage($client, $campaign, $claim)
+    public static function editBotMessage($client, $campaign, $claim, $bottom_note)
     {
+
+
         $bot = (new self())->bot;
         $message_id = (int)$claim->tg_message_id;
         $html = new HTML2TEXT($campaign->bm_text);
         $text = $html->getText();
-        $bot->editMessageText(
-            $text = $text,
+        $bot->editMessageCaption(
+
             [
+                'caption' => $text . "\n\n" . $bottom_note,
                 'chat_id' => $client->tg_user_id,
                 'message_id' => $message_id,
                 'parse_mode' => 'html'
@@ -118,5 +119,30 @@ class CampaignService extends Bot
         );
 
         return $response;
+    }
+
+    public static function deleteBotMessage($client)
+    {
+        $bot = (new self())->bot;
+        $message_id = (int)$client->claim->tg_message_id;
+        $response = $bot->deleteMessage(
+            $client->tg_user_id,
+            $message_id
+        );
+
+        return $response;
+    }
+
+    public static function deleteGroupMessage($message_ids)
+    {
+        $bot = (new self())->bot;
+        $target_chats  = config('nutgram.target_chats');
+
+        for ($i = 0; $i < count($target_chats); $i++) {
+            $bot->deleteMessage(
+                $target_chats[$i],
+                $message_ids[$i]
+            );
+        }
     }
 }

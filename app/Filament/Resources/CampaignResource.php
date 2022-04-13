@@ -20,6 +20,8 @@ use App\Models\Country;
 use App\Models\Interest;
 use App\Models\Payment;
 use Carbon\Carbon;
+use Filament\Forms\Components\MarkdownEditor;
+
 
 class CampaignResource extends Resource
 {
@@ -56,7 +58,20 @@ class CampaignResource extends Resource
 
                             ]
                         )->label('Content')->required(),
-                        // TinyEditor::make('content')->profile('mrx')
+                        // TinyEditor::make('content')->profile('mrx'),
+                        // MarkdownEditor::make('content')
+                        //     ->toolbarButtons([
+                        //         'attachFiles',
+                        //         'bold',
+                        //         'bulletList',
+                        //         'codeBlock',
+                        //         'edit',
+                        //         'italic',
+                        //         'link',
+                        //         'orderedList',
+                        //         'preview',
+                        //         'strike',
+                        //     ])
 
 
 
@@ -85,7 +100,8 @@ class CampaignResource extends Resource
                             ->label('Apply btn duration')
                             ->required()
                             ->withoutSeconds()
-                            ->minDate(now()->addMinute())
+                            ->minDate(now()->subDay())
+                            ->placeholder(now())
                             ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state)->diffForHumans(now()) : ''))
                             ->reactive(),
                         Forms\Components\TextInput::make('bm_apply_btn_url')->url()->label('Apply btn url')->required(),

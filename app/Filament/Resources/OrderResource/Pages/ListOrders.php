@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\OrderResource;
+use App\Models\Client;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use App\Models\Order;
@@ -10,11 +11,10 @@ use App\services\ClientService;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\BadgeColumn;
-
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\IconButtonAction;
 use Filament\Forms\Components\Textarea;
 use SergiX44\Nutgram\Nutgram;
-
 class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
@@ -28,7 +28,11 @@ class ListOrders extends ListRecords
 
         return [
 
-            TextColumn::make('client.name'),
+            // TextColumn::make('client.name')->label('Client'),
+            TextColumn::make('client.tg_username')
+                ->url(fn (Order $record): string => "https://t.me/".$record->client->tg_username)
+                ->openUrlInNewTab()
+                ->label('Client'),
             TextColumn::make('campaign.gm_text')->html(),
             TextColumn::make('payment_method'),
             TagsColumn::make('payment_method')->separator(),
@@ -84,6 +88,23 @@ class ListOrders extends ListRecords
                 ->hidden(fn (Order $record): bool => 1 == $record->status),
         ];
     }
+    protected function getTableFilters(): array
+    {
+
+        $clients=array();
+        foreach(Client::all() as $client){
+          $clients[$client->id] = $client['tg_username'];
+        }
+        return [
+            SelectFilter::make('client')
+            ->options($clients)
+            ->column('client_id'),
+            
+
+
+        ];
+    }
+
 
     public function approve(Nutgram $bot, $record)
     {

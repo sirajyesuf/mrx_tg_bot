@@ -22,6 +22,7 @@ class ClaimHandler
         $claim_target_chat_id = "-" . str::after($parameter, '-');
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $campaign = Campaign::firstWhere('id', $campaign_id);
+
         $message_id = CampaignService::send($bot, $client, $campaign);
 
 

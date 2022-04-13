@@ -10,7 +10,7 @@ class Authenticate
     public function __invoke(Nutgram $bot, $next)
     {
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
-        $client ? $next($bot) : $this->askToCreateAccount($bot);
+        is_null($client) ? $this->askToCreateAccount($bot)  : $next($bot);
     }
 
     protected function askToCreateAccount(Nutgram $bot)

@@ -47,6 +47,14 @@ class CampaignResource extends Resource
 
         return $form
             ->schema([
+                Fieldset::make('Title')
+                    ->schema([
+                        Forms\Components\TextInput::make('title')
+                            ->columns(2)
+                            ->unique(Campaign::class)
+                            ->required()
+
+                    ])->columns(1),
                 Fieldset::make('Group Message')
                     ->schema([
                         Forms\Components\RichEditor::make('gm_text')->toolbarButtons(
@@ -80,7 +88,7 @@ class CampaignResource extends Resource
 
                 Fieldset::make('Bot Message')
                     ->schema([
-                        Forms\Components\FileUpload::make('bm_image')->image()->label('Image'),
+                        Forms\Components\FileUpload::make('bm_image')->image()->label('Image')->required(),
                         Forms\Components\RichEditor::make('bm_text')->toolbarButtons([
                             'bold',
                             'italic',
@@ -105,8 +113,12 @@ class CampaignResource extends Resource
                             ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state)->diffForHumans(now()) : ''))
                             ->reactive(),
                         Forms\Components\TextInput::make('bm_apply_btn_url')->url()->label('Apply btn url')->required(),
+                        Forms\Components\MultiSelect::make('payment_methods')
+                            ->label('Payment')
+                            ->options($payment)
+                            ->required(),
 
-                    ])->columns(1),
+                    ])->columns(2),
                 Fieldset::make('Apply Filters')
                     ->schema([
                         Forms\Components\MultiSelect::make('gm_geo')
@@ -120,13 +132,8 @@ class CampaignResource extends Resource
 
 
 
-                    ])->columns(1),
-                Fieldset::make('Payment Method')
-                    ->schema([
-                        Forms\Components\MultiSelect::make('payment_methods')
-                            ->label('Payment')
-                            ->options($payment),
-                    ])->columns(1)
+                    ])->columns(2),
+
 
 
             ]);

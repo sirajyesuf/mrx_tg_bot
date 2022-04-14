@@ -30,7 +30,7 @@ class ListCampaigns extends ListRecords
 
         return [
 
-            ImageColumn::make('bm_image')->label('Campaign'),
+            TextColumn::make('title')->label('Campaign'),
             TagsColumn::make('gm_interest')->label('Interestes_Prime')->default('not applyed'),
             TagsColumn::make('gm_geo')->label('Geo')->default('not applyed'),
             TagsColumn::make('payment_methods')->label('payment_methods')->default('not applyed'),
@@ -66,8 +66,7 @@ class ListCampaigns extends ListRecords
             ButtonAction::make('Publishe')
                 ->action('publisheCampaign')
                 ->requiresConfirmation()
-                ->color('primary')
-                ->hidden(fn (Campaign $record): bool => $record->status),
+                ->color('primary'),
             IconButtonAction::make('view')
                 ->url(fn (Campaign $record): string => "campaigns/$record->id")
                 ->icon('heroicon-o-eye')

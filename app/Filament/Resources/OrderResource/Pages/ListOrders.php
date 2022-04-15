@@ -23,6 +23,7 @@ class ListOrders extends ListRecords
     {
         return Order::query()->with(['client', 'campaign']);
     }
+ 
     protected function getTableColumns(): array
     {
 
@@ -33,7 +34,10 @@ class ListOrders extends ListRecords
                 ->url(fn (Order $record): string => "https://t.me/".$record->client->tg_username)
                 ->openUrlInNewTab()
                 ->label('Client'),
-            TextColumn::make('campaign.gm_text')->html(),
+            TextColumn::make('campaign.title')
+            ->url(fn (Order $record): string => "campaigns/".$record->campaign->id)
+            ->openUrlInNewTab()
+            ->label('Campaign'),
             TextColumn::make('payment_method'),
             TagsColumn::make('payment_method')->separator(),
             TextColumn::make('information')->default(''),

@@ -36,7 +36,7 @@ class ClientResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('name')
             ])
             ->filters([
                 //
@@ -54,7 +54,7 @@ class ClientResource extends Resource
     {
         return [
             'index' => Pages\ListClients::route('/'),
-            // 'view' => Pages\ViewClient::route('/{record}')
+            'claim' => Pages\ClaimHistory::route('/{record}')
 
             // 'create' => Pages\CreateClient::route('/create'),
             // 'edit' => Pages\EditClient::route('/{record}/edit'),

@@ -3,34 +3,50 @@
 namespace App\Filament\Resources\ClientResource\Pages;
 
 use App\Filament\Resources\ClientResource;
-use App\Models\Client;
 use Filament\Resources\Pages\Page;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Pages;
+use App\Models\Client;
 use Filament\Tables;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 
-class ViewClient extends Page
+class ClaimHistory extends Page
 {
     protected static string $resource = ClientResource::class;
 
-    protected static string $view = 'filament.resources.client-resource.pages.view-client';
+    protected static string $view = 'filament.resources.client-resource.pages.claim-history';
 
-    public $record;
-    public function mount($record)
+    protected function getActions(): array
     {
-
-        $this->record = Client::with('campaigns')->find($record);
+        return [
+            Pages\Actions\ButtonAction::make('settings')->action('openSettingsModal'),
+        ];
     }
 
+
+
+    protected function getTableQuery(): Builder
+    {
+
+        dd($this->record->campaigns);
+        // return Client::query()->campaigns;
+    }
+
+
+    public function openSettingsModal(): void
+    {
+        $this->dispatchBrowserEvent('open-settings-modal');
+    }
     protected function getTableColumns(): array
     {
+
 
         return [
             Tables\Columns\TextColumn::make('tg_username')
                 ->url(fn (Client $record): string => "https://t.me/$record->tg_username")
                 ->openUrlInNewTab()
                 ->label('Username'),
-            Tables\Columns\TextColumn::make('geo')->label('Geo'),
+            Tables\Columns\TextColumn::make('campaign.claim.id')->label('Geo'),
             Tables\Columns\BadgeColumn::make('prime')
                 ->colors([
                     'danger' => fn ($state): bool => $state == false,

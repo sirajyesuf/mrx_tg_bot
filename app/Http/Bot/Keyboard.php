@@ -23,10 +23,10 @@ class Keyboard
 
         return ReplyKeyboardMarkup::make(resize_keyboard: true)
             ->addRow(
-                KeyboardButton::make('Account')
+                KeyboardButton::make('👤 My Account')
             )
             ->addRow(
-                KeyboardButton::make('Payment')
+                KeyboardButton::make('💳 Payment')
             )
             ->addRow(
                 KeyboardButton::make('Help')

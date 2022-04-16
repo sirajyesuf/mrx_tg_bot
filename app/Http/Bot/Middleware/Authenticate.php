@@ -15,7 +15,7 @@ class Authenticate
 
     protected function askToCreateAccount(Nutgram $bot)
     {
-        $text = "To claim the product you need to register one-time.use the <b>Account</b> button from main menu.";
+        $text = "To claim the product you need to register one-time.use the \n<b>My Account</b> button from main menu.";
         $bot->sendMessage(
             $text,
             [

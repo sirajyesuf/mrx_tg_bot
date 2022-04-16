@@ -12,6 +12,6 @@ class HelpHandler
     public function __invoke(Nutgram $bot)
     {
         $text = "you need support please DM me\n\n@eerusuz3hf";
-        $this->sendMessage($bot, $text);
+        $this->sendMessage($bot, $text, ['reply_markup' => Keyboard::mainMenu()]);
     }
 }

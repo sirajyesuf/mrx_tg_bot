@@ -69,15 +69,25 @@ class PaymentHandler extends Conversation
             $this->askCampaign($bot, $claims);
         }
         if ($message and $que == 'asktouploadproof') {
+            if ($message->text == "❌Cancel") {
 
-            $photo = $message->photo[0];
-            $photo_id = $photo->file_id;
-            $order['file_id'] = $photo_id;
-            // name of the proof image
-            $order['proof'] = $photo->file_unique_id . ".png";
-            $order['information'] = $message->caption;
-            $bot->setUserData('order', $order, $bot->chatId());
-            $this->askPaymentMethod($bot);
+
+                $this->sendMessage($bot, 'cancelled.', [
+                    'reply_markup' => Keyboard::mainMenu()
+                ]);
+
+                $bot->deleteUserData('order');
+                $bot->deleteUserData('que');
+            } else {
+                $photo = $message->photo[0];
+                $photo_id = $photo->file_id;
+                $order['file_id'] = $photo_id;
+                // name of the proof image
+                $order['proof'] = $photo->file_unique_id . ".png";
+                $order['information'] = $message->caption;
+                $bot->setUserData('order', $order, $bot->chatId());
+                $this->askPaymentMethod($bot);
+            }
         }
         if ($bot->isCallbackQuery() and $que == "askpaymentmethod") {
             if ($callback_query->data == 'submit') {
@@ -123,9 +133,10 @@ class PaymentHandler extends Conversation
         $campaigns = InlineKeyboardMarkup::make();
         $text = "please select one of the following product id to request for payment.";
         foreach ($claims as $claim) {
+            $btn_text =  $claim->title . "( ID: " . $claim->claim->product_id . ")";
             $campaigns = $campaigns
                 ->addRow(
-                    InlineKeyboardButton::make(text: $claim->claim->product_id, callback_data: $claim->claim->campaign_id)
+                    InlineKeyboardButton::make(text: $btn_text, callback_data: $claim->claim->campaign_id)
                 );
         }
         $this->sendMessage(

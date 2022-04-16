@@ -23,10 +23,10 @@ use Filament\Tables\Filters\MultiSelectFilter;
 class ListClients extends ListRecords
 {
     protected static string $resource = ClientResource::class;
-    public function isTableSearchable(): bool
-    {
-        return true;
-    }
+    // public function isTableSearchable(): bool
+    // {
+    //     return true;
+    // }
     protected function applySearchToTableQuery(Builder $query): Builder
     {
         if (filled($searchQuery = $this->getTableSearchQuery())) {

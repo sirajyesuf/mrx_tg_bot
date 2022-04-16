@@ -48,7 +48,8 @@ class RegistrationHandler extends Conversation
             );
 
         $fields = [
-            'name' => $bot->user()->first_name,
+            'first_name' => $bot->user()->first_name,
+            'last_name' => $bot->user()->last_name,
             'tg_user_id' => $bot->chatId(),
             'tg_username' => $bot->user()->username,
             'geo' => null,
@@ -213,7 +214,7 @@ class RegistrationHandler extends Conversation
             $int = $int . "\t\t\t\t☑️" . $fav . "\n";
         }
         $_prime = $user->prime ? 'Yes' : 'No';
-        $text = "🙍Profile\n\n<b>🌍Geo:</b> $user->geo\n\n<b>⭐Interestes:</b> \n$int\n<b>🎥Prime:</b>$_prime";
+        $text = "👤 My Account\n\n<b>🌍Geo:</b> $user->geo\n\n<b>⭐Interestes:</b> \n$int\n<b>🎥Prime:</b>$_prime";
         $this->sendMessage($bot, $text, [
             'reply_markup' => Keyboard::mainMenu(),
             'parse_mode' => 'html'

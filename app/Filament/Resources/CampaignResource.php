@@ -21,6 +21,8 @@ use App\Models\Interest;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Filament\Forms\Components\MarkdownEditor;
+use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
+use Livewire\Component;
 
 
 class CampaignResource extends Resource
@@ -47,39 +49,28 @@ class CampaignResource extends Resource
 
         return $form
             ->schema([
+
                 Fieldset::make('Title')
                     ->schema([
-                        Forms\Components\TextInput::make('title')
-                            ->columns(2)
-                            ->unique(Campaign::class)
-                            ->required()
 
-                    ])->columns(1),
+                        Forms\Components\TextInput::make('title')
+                            ->unique(ignorable: fn (?Campaign $record): ?Campaign => $record)
+                            ->required()
+                            ->columns()
+                    ])
+                    ->columns(1),
                 Fieldset::make('Group Message')
                     ->schema([
-                        Forms\Components\RichEditor::make('gm_text')->toolbarButtons(
-                            [
+                        // Forms\Components\RichEditor::make('gm_text')->toolbarButtons(
+                        //     [
 
-                                'bold',
-                                'italic',
-                                'link',
-
-                            ]
-                        )->label('Content')->required(),
-                        // TinyEditor::make('content')->profile('mrx'),
-                        // MarkdownEditor::make('content')
-                        //     ->toolbarButtons([
-                        //         'attachFiles',
                         //         'bold',
-                        //         'bulletList',
-                        //         'codeBlock',
-                        //         'edit',
                         //         'italic',
                         //         'link',
-                        //         'orderedList',
-                        //         'preview',
-                        //         'strike',
-                        //     ])
+
+                        //     ]
+                        // )->label('Content')->required(),
+                        TinyEditor::make('gm_text')->profile('mrx'),
 
 
 
@@ -89,12 +80,12 @@ class CampaignResource extends Resource
                 Fieldset::make('Bot Message')
                     ->schema([
                         Forms\Components\FileUpload::make('bm_image')->image()->label('Image')->required(),
-                        Forms\Components\RichEditor::make('bm_text')->toolbarButtons([
-                            'bold',
-                            'italic',
-                            'link',
-                        ])->label('content')->required()
-                        // TinyEditor::make('bm_text')
+                        // Forms\Components\RichEditor::make('bm_text')->toolbarButtons([
+                        //     'bold',
+                        //     'italic',
+                        //     'link',
+                        // ])->label('content')->required(),
+                        TinyEditor::make('bm_text')->profile('mrx')
 
 
 
@@ -107,10 +98,9 @@ class CampaignResource extends Resource
                         Forms\Components\DateTimePicker::make('bm_apply_btn_active_duration')
                             ->label('Apply btn duration')
                             ->required()
-                            ->withoutSeconds()
                             ->minDate(now()->subDay())
-                            ->placeholder(now())
-                            ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state)->diffForHumans(now()) : ''))
+                            ->placeholder(now()->tz(env('ADMIN_TIMEZONE')))
+                            ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state, env('ADMIN_TIMEZONE'))->diffForHumans(now()->tz(env('ADMIN_TIMEZONE'))) : ''))
                             ->reactive(),
                         Forms\Components\TextInput::make('bm_apply_btn_url')->url()->label('Apply btn url')->required(),
                         Forms\Components\MultiSelect::make('payment_methods')

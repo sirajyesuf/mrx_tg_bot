@@ -15,4 +15,9 @@ use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
 class CreateCampaign extends CreateRecord
 {
     protected static string $resource = CampaignResource::class;
+
+    protected function beforeSave(): void
+    {
+        // Runs before the form fields are saved to the database.
+    }
 }

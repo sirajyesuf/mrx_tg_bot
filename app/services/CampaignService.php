@@ -6,17 +6,23 @@ use SergiX44\Nutgram\Nutgram;
 use App\Http\Bot\Keyboard;
 use Html2Text\Html2Text as HTML2TEXT;
 use App\Http\Bot\Bot;
-use Illuminate\Support\Carbon;
+use SergiX44\Nutgram\Telegram\Exceptions\TelegramException;
 
 class CampaignService extends Bot
 {
+
+    protected function getTelegramHtml($html)
+    {
+        $text = strip_tags($html, ["br", "b", "i", "u", "strong", "span", "a", "code", "pre"]);
+        $text = explode("<br />", $text);
+        $text = implode("\n", $text);
+        return $text;
+    }
     public static function post(Nutgram $bot, $campaign)
     {
         $target_chats  = config('nutgram.target_chats');
         $message_ids = array();
-        // remove unsupported html tags
-        $html = new HTML2TEXT($campaign->gm_text);
-        $text = $html->getText();
+        $text = (new self())->getTelegramHtml($campaign->gm_text);
         foreach ($target_chats as $target_chat) {
             $btn_parameter = $campaign->id . $target_chat;
             $response = $bot->sendMessage(
@@ -24,7 +30,8 @@ class CampaignService extends Bot
                 [
                     'chat_id' => $target_chat,
                     'parse_mode' => 'html',
-                    'reply_markup' => Keyboard::claimNow($btn_parameter)
+                    'reply_markup' => Keyboard::claimNow($btn_parameter),
+                    'disable_web_page_preview' => true
                 ]
             );
 
@@ -139,10 +146,13 @@ class CampaignService extends Bot
         $target_chats  = config('nutgram.target_chats');
 
         for ($i = 0; $i < count($target_chats); $i++) {
-            $bot->deleteMessage(
-                $target_chats[$i],
-                $message_ids[$i]
-            );
+            try {
+                $bot->deleteMessage(
+                    $target_chats[$i],
+                    $message_ids[$i]
+                );
+            } catch (TelegramException) {
+            }
         }
     }
 }

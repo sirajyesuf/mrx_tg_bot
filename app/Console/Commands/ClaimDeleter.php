@@ -56,11 +56,10 @@ class ClaimDeleter extends Command
                     CampaignService::deleteBotMessage($client);
                     CampaignClient::find($client->claim->id)->delete();
                 }
-                if ($res->greaterThanOrEqualTo($notification_dur)) {
+                if ($res->greaterThanOrEqualTo($notification_dur) and $client->notification_status == 0) {
                     //send notification to client
                     $text = "hello $client->name please  apply the campaign with in the next 1 min. we are going to delete the campaign.";
                     ClientService::sendNotification($client, $text);
-                } else {
                 }
             }
         }

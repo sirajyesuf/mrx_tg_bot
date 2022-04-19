@@ -22,6 +22,8 @@ class User extends Authenticatable
         'interestes' => 'array'
     ];
 
+
+
     public function country()
     {
         return $this->hasOne(Country::class);

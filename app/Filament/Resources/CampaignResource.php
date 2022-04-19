@@ -23,15 +23,18 @@ use Carbon\Carbon;
 use Filament\Forms\Components\MarkdownEditor;
 use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
 use Livewire\Component;
-
+use Illuminate\Support\Facades\Auth;
 
 class CampaignResource extends Resource
 {
     protected static ?string $model = Campaign::class;
     protected static ?string $navigationIcon = 'heroicon-o-collection';
 
+
     public static function form(Form $form): Form
     {
+        $tz = auth()->user()->time_zone;
+
         $interestes = array();
         foreach (Interest::all()->pluck('name') as $int) {
             $interestes[$int] = $int;
@@ -99,8 +102,8 @@ class CampaignResource extends Resource
                             ->label('Apply btn duration')
                             ->required()
                             ->minDate(now()->subDay())
-                            ->placeholder(now()->tz(env('ADMIN_TIMEZONE')))
-                            ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state, env('ADMIN_TIMEZONE'))->diffForHumans(now()->tz(env('ADMIN_TIMEZONE'))) : ''))
+                            ->placeholder(now()->tz($tz))
+                            ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state,$tz)->diffForHumans(now()->tz($tz)) : ''))
                             ->reactive(),
                         Forms\Components\TextInput::make('bm_apply_btn_url')->url()->label('Apply btn url')->required(),
                         Forms\Components\MultiSelect::make('payment_methods')

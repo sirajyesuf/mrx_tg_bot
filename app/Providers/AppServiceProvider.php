@@ -13,9 +13,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Filament::registerPages([
-            \RyanChandler\FilamentProfile\Pages\Profile::class
-        ]);
+        // Filament::registerPages([
+        //     \RyanChandler\FilamentProfile\Pages\Profile::class
+        // ]);
     }
 
     /**

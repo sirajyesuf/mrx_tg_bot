@@ -36,40 +36,31 @@ class ListCampaigns extends ListRecords
             TagsColumn::make('payment_methods')->label('payment_methods')->default('not applyed'),
             TextColumn::make('gm_claim_now_btn_num_click')->label('Num_Claim'),
             TextColumn::make('bm_apply_btn_active_duration')->label('Apply_Btn_Duration')
-                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration,env('ADMIN_TIMEZONE'))->diffForHumans(Carbon::parse($record->updated_at), env('ADMIN_TIMEZONE'))),
-            // ->formatStateUsing(fn (DateInterval $state): string => $state->d . ' days, ' . $state->h . ' hours, ' . $state->i . ' minutes'),
-            // BadgeColumn::make('status')
-            //     ->colors([
-            //         'danger' => fn ($state): bool => $state == false,
-            //         'success' => fn ($state): bool => $state == true,
-            //     ])->enum([
-            //         false => "Drafted",
-            //         true => "Published"
-            //     ])
+                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration, env('ADMIN_TIMEZONE'))->diffForHumans(Carbon::parse($record->updated_at), env('ADMIN_TIMEZONE'))),
+
+        ];
+    }
+    protected function getTableBulkActions(): array
+    {
+        return [
+            // ...
         ];
     }
 
     protected function getTableActions(): array
     {
         return [
-            // IconButtonAction::make('Edit')
-            //     ->url(fn (Campaign $record): string => "campaigns/$record->id/edit")->icon('heroicon-o-pencil')
-            //     ->hidden(fn (Campaign $record): bool => $record->status),
-
-            // IconButtonAction::make('Detail')
-            //     ->url(fn (Campaign $record): string => "campaigns/$record->id/edit")->icon('heroicon-o-information-circle'),
-            // IconButtonAction::make('Delete')
-            //     ->action(fn (Campaign $record) => $record->delete())
-            //     ->requiresConfirmation()
-            //     ->icon('heroicon-o-trash')->color('danger')
-            // ->hidden(fn (Campaign $record): bool => $record->status),
+            IconButtonAction::make('Delete')
+                ->action('deleteCampaign')
+                ->requiresConfirmation()
+                ->icon('heroicon-o-trash')->color('danger'),
             ButtonAction::make('Publishe')
                 ->action('publisheCampaign')
                 ->requiresConfirmation()
                 ->color('primary'),
-            IconButtonAction::make('view')
-                ->url(fn (Campaign $record): string => "campaigns/$record->id")
-                ->icon('heroicon-o-eye')
+            // IconButtonAction::make('view')
+            //     ->url(fn (Campaign $record): string => "campaigns/$record->id")
+            //     ->icon('heroicon-o-eye')
 
         ];
     }
@@ -89,5 +80,17 @@ class ListCampaigns extends ListRecords
         $record->update(['message_ids' => $message_ids]);
         //send success notification
         $this->notify('success', 'Published');
+    }
+
+
+    public function deleteCampaign(Campaign $record)
+    {
+        // check for the presence of previous post if found delete them first
+        dd("edit delete");
+        if ($record->message_ids) {
+
+            CampaignService::deleteGroupMessage($record->message_ids);
+        }
+        $record->delete();
     }
 }

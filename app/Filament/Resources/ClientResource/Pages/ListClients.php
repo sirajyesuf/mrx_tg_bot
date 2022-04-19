@@ -23,18 +23,8 @@ use Filament\Tables\Filters\MultiSelectFilter;
 class ListClients extends ListRecords
 {
     protected static string $resource = ClientResource::class;
-    // public function isTableSearchable(): bool
-    // {
-    //     return true;
-    // }
-    protected function applySearchToTableQuery(Builder $query): Builder
-    {
-        if (filled($searchQuery = $this->getTableSearchQuery())) {
-            $query->whereIn('id', Client::search($searchQuery)->keys());
-        }
 
-        return $query;
-    }
+
 
     protected function getTableColumns(): array
     {
@@ -103,7 +93,7 @@ class ListClients extends ListRecords
             $geo[$ctry] = $ctry;
         }
         $interestes = array();
-        foreach (Interest::where('name','!=','prime')->get()->pluck('name') as $int) {
+        foreach (Interest::where('name', '!=', 'prime')->get()->pluck('name') as $int) {
             $interestes[$int] = $int;
         }
         return [
@@ -130,8 +120,8 @@ class ListClients extends ListRecords
     {
         $text = "Welcome, your account was approved now you can start claiming products.";
         foreach ($records as $record) {
-            $record->update(['status' => 2]);
             ClientService::approve($bot, $text, $record->tg_user_id);
+            $record->update(['status' => 2]);
         }
     }
 
@@ -140,8 +130,8 @@ class ListClients extends ListRecords
         $text = "Your account was denied.";
 
         foreach ($records as $record) {
-            $record->update(['status' => 3]);
             ClientService::deny($bot, $text, $record->tg_user_id);
+            $record->update(['status' => 3]);
         }
     }
 }

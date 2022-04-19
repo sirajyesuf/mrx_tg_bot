@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('campaign_client', function (Blueprint $table) {
             $table->id();
-            $table->uuid('product_id');
+            $table->string('product_id');
             $table->unsignedBigInteger('campaign_id');
             $table->unsignedBigInteger('client_id');
             $table->integer('tg_message_id');
             $table->boolean('status')->default(false);
-            $table->foreign('campaign_id')->references('id')->on('campaigns');
+            $table->foreign('campaign_id')->references('id')->on('campaigns')->cascadeOnDelete();
             $table->foreign('client_id')->references('id')->on('clients');
             $table->timestamps();
         });

@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->integer('tg_user_id');
             $table->string("tg_username");
             $table->boolean('prime');

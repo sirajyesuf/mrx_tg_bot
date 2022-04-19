@@ -17,7 +17,7 @@ class Claimer
 
     protected function Notify(Nutgram $bot)
     {
-        $text = "please claim  and apply atleast one campaign.";
+        $text = "📢 please first claim  and apply atleast one campaign.";
         $bot->sendMessage(
             $text,
             [

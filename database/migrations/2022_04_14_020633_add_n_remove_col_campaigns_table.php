@@ -14,7 +14,6 @@ return new class extends Migration
     public function up()
     {
         Schema::table('campaigns', function (Blueprint $table) {
-            $table->dropColumn('status');
             $table->string('title')->unique();
         });
     }

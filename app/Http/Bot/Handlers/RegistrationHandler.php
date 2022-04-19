@@ -102,7 +102,8 @@ class RegistrationHandler extends Conversation
             if ($callback_query->data == "submit") {
                 $fields = $bot->getUserData('account', $bot->chatId());
                 $client = Client::create($fields);
-                $this->profile($bot, $client);
+                $sucess_text = "✅ your account sucessfully created. please await for the approval notification from the admin.";
+                $this->profile($bot, $client, $sucess_text);
             } else {
                 $data = $callback_query->data;
                 $fields = $bot->getUserData('account', $bot->chatId());
@@ -207,14 +208,18 @@ class RegistrationHandler extends Conversation
         $bot->setUserData('que', 'interestes', $bot->chatId());
     }
 
-    protected function profile(Nutgram $bot, Client $user)
+    protected function profile(Nutgram $bot, Client $user, $sucess_text = null)
     {
+
         $int = "";
         foreach ($user->interestes as $fav) {
             $int = $int . "\t\t\t\t☑️" . $fav . "\n";
         }
         $_prime = $user->prime ? 'Yes' : 'No';
         $text = "👤 My Account\n\n<b>🌍Geo:</b> $user->geo\n\n<b>⭐Interestes:</b> \n$int\n<b>🎥Prime:</b>$_prime";
+        if (!is_null($sucess_text)) {
+            $text = $sucess_text . "\n" . $text;
+        }
         $this->sendMessage($bot, $text, [
             'reply_markup' => Keyboard::mainMenu(),
             'parse_mode' => 'html'

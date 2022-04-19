@@ -24,6 +24,8 @@ use Filament\Forms\Components\MarkdownEditor;
 use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 
 class CampaignResource extends Resource
 {
@@ -53,34 +55,41 @@ class CampaignResource extends Resource
         return $form
             ->schema([
 
-                Fieldset::make('Title')
+                Section::make('Group Message')
+                    ->columns(1)
                     ->schema([
 
                         Forms\Components\TextInput::make('title')
                             ->unique(ignorable: fn (?Campaign $record): ?Campaign => $record)
                             ->required()
-                            ->columns()
-                    ])
-                    ->columns(1),
-                Fieldset::make('Group Message')
-                    ->schema([
-                        // Forms\Components\RichEditor::make('gm_text')->toolbarButtons(
-                        //     [
-
-                        //         'bold',
-                        //         'italic',
-                        //         'link',
-
-                        //     ]
-                        // )->label('Content')->required(),
-                        TinyEditor::make('gm_text')->profile('mrx'),
+                            ->columns(),
+                        TinyEditor::make('gm_text')
+                            ->label('Text')
+                            ->required()
+                            ->profile('mrx')
 
 
+                    ]),
+                // Fieldset::make('Group Message')
+                //     ->schema([
+                //         // Forms\Components\RichEditor::make('gm_text')->toolbarButtons(
+                //         //     [
+
+                //         //         'bold',
+                //         //         'italic',
+                //         //         'link',
+
+                //         //     ]
+                //         // )->label('Content')->required(),
+                //         // TinyEditor::make('gm_text')->profile('mrx'),
 
 
-                    ])->columns(1),
 
-                Fieldset::make('Bot Message')
+
+                //     ])->columns(1),
+
+                Section::make('Bot Message')
+                    ->columns(1)
                     ->schema([
                         Forms\Components\FileUpload::make('bm_image')->image()->label('Image')->required(),
                         // Forms\Components\RichEditor::make('bm_text')->toolbarButtons([
@@ -88,13 +97,17 @@ class CampaignResource extends Resource
                         //     'italic',
                         //     'link',
                         // ])->label('content')->required(),
-                        TinyEditor::make('bm_text')->profile('mrx')
+                        TinyEditor::make('bm_text')
+                            ->label('Text')
+                            ->required()
+                            ->profile('mrx')
 
 
 
 
-                    ])->columns(1),
-                Fieldset::make('Settings')
+                    ]),
+                Section::make('Settings')
+                    ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('gm_claim_now_btn_num_click')
                             ->numeric()->minValue(1)->label('claim now btn number')->required(),
@@ -103,7 +116,7 @@ class CampaignResource extends Resource
                             ->required()
                             ->minDate(now()->subDay())
                             ->placeholder(now()->tz($tz))
-                            ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state,$tz)->diffForHumans(now()->tz($tz)) : ''))
+                            ->helperText(fn ($state, callable $set) => $set('duration', $state ? Carbon::parse($state, $tz)->diffForHumans(now()->tz($tz)) : ''))
                             ->reactive(),
                         Forms\Components\TextInput::make('bm_apply_btn_url')->url()->label('Apply btn url')->required(),
                         Forms\Components\MultiSelect::make('payment_methods')
@@ -111,8 +124,9 @@ class CampaignResource extends Resource
                             ->options($payment)
                             ->required(),
 
-                    ])->columns(2),
-                Fieldset::make('Apply Filters')
+                    ]),
+                Section::make('Apply Filters')
+                    ->columns(2)
                     ->schema([
                         Forms\Components\MultiSelect::make('gm_geo')
                             ->label('Geo')
@@ -125,7 +139,7 @@ class CampaignResource extends Resource
 
 
 
-                    ])->columns(2),
+                    ]),
 
 
 

@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\ClientResource\Pages;
 
 use App\Filament\Resources\ClientResource;
+use App\Models\Campaign;
 use App\Models\Client;
 use Filament\Resources\Pages\ListRecords;
 use App\Models\Country;
+use Filament\Tables;
 use App\services\ClientService;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TagsColumn;
@@ -28,6 +30,7 @@ class ListClients extends ListRecords
 
     protected function getTableColumns(): array
     {
+
 
 
 
@@ -57,7 +60,8 @@ class ListClients extends ListRecords
                 ]),
             TextColumn::make('created_at')->label('Joined')->date(),
             TagsColumn::make('interestes'),
-            BadgeColumn::make('orders_count')->counts('orders')->label('Orders')
+            BadgeColumn::make('orders_count')->counts('orders')->label('Orders'),
+
 
 
         ];
@@ -113,6 +117,15 @@ class ListClients extends ListRecords
 
 
 
+        ];
+    }
+
+    protected function getTableActions(): array
+    {
+        return [
+
+            Tables\Actions\LinkAction::make('claim')
+                ->url(fn (Client $record): string => "clients/$record->id")
         ];
     }
 

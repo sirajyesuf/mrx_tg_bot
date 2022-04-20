@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Forms\Components\Card;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class ClientResource extends Resource
 {
@@ -46,7 +47,7 @@ class ClientResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CampaignsRelationManager::class
         ];
     }
 
@@ -54,8 +55,7 @@ class ClientResource extends Resource
     {
         return [
             'index' => Pages\ListClients::route('/'),
-            'claim' => Pages\ClaimHistory::route('/{record}')
-
+            'view' => Pages\ViewClient::route('/{record}'),            
             // 'create' => Pages\CreateClient::route('/create'),
             // 'edit' => Pages\EditClient::route('/{record}/edit'),
         ];

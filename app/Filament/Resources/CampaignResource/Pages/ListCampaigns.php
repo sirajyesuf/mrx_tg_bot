@@ -19,6 +19,7 @@ use Carbon\CarbonInterval;
 use DateInterval;
 use SergiX44\Nutgram\Nutgram;
 use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Facades\Auth;
 
 class ListCampaigns extends ListRecords
 {
@@ -27,6 +28,7 @@ class ListCampaigns extends ListRecords
     protected function getTableColumns(): array
     {
 
+        $tz = auth()->user()->time_zone;
 
         return [
 
@@ -36,7 +38,7 @@ class ListCampaigns extends ListRecords
             TagsColumn::make('payment_methods')->label('payment_methods')->default('not applyed'),
             TextColumn::make('gm_claim_now_btn_num_click')->label('Num_Claim'),
             TextColumn::make('bm_apply_btn_active_duration')->label('Apply_Btn_Duration')
-                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration, env('ADMIN_TIMEZONE'))->diffForHumans(Carbon::parse($record->updated_at), env('ADMIN_TIMEZONE'))),
+                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration,$tz)->diffForHumans(Carbon::parse($record->updated_at,$tz))),
 
         ];
     }

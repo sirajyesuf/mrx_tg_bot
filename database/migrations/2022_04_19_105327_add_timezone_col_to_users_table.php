@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
 
-            $table->string('time_zone');
+            $table->string('time_zone')->default('Africa/Addis_Ababa');
         });
     }
 

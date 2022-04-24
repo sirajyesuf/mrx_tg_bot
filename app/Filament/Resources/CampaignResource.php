@@ -159,13 +159,19 @@ class CampaignResource extends Resource
                 //
             ]);
     }
+    // protected function mutateFormDataBeforeCreate(array $data): array
+    // {
+    //     $data['bm_apply_btn_active_duration'] = Carbon::parse($data['bm_apply_btn_active_duration'], 'UTC');
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
+    //     return $data;
+    // }
+    // protected function mutateFormDataBeforeSave(array $data): array
+    // {
+
+    //     $data['bm_apply_btn_active_duration'] = Carbon::parse($data['bm_apply_btn_active_duration'], 'UTC');
+
+    //     return $data;
+    // }
 
     public static function getPages(): array
     {

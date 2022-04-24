@@ -36,8 +36,9 @@ class Campaign extends Model
 
     // public function bmApplyBtnActiveDuration(): Attribute
     // {
-    //     return new Attribute(
-    //         get: fn ($value, $attributes) => Carbon::parse($value)->diffAsCarbonInterval($attributes['updated_at']),
+
+    //     return Attribute::make(
+    //         set: fn ($value) => Carbon::parse($value, "utc"),
     //     );
     // }
 }

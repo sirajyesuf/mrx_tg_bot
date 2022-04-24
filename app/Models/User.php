@@ -8,8 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable;
     protected $guarded = [];
@@ -22,7 +23,10 @@ class User extends Authenticatable
         'interestes' => 'array'
     ];
 
-
+    public function canAccessFilament(): bool
+    {
+        return true;
+    }
 
     public function country()
     {

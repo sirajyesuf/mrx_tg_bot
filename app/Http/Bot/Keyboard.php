@@ -6,8 +6,9 @@ use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
+use App\Http\Bot\Bot;
 
-class Keyboard
+class Keyboard extends Bot
 {
 
     public static function cancelBtn()
@@ -35,9 +36,13 @@ class Keyboard
 
     public static function claimNow($parameter)
     {
+
+        $bot = (new self())->bot;
+        $my_bot = $bot->getMe();
+
         return InlineKeyboardMarkup::make()
             ->addRow(
-                InlineKeyboardButton::make(text: "Claim Now", url: "http://t.me/mrx_camp_bot?start=$parameter")
+                InlineKeyboardButton::make(text: "Claim Now", url: "http://t.me/$my_bot->username?start=$parameter")
             );
     }
 
@@ -63,6 +68,18 @@ class Keyboard
             )
             ->addRow(
                 InlineKeyboardButton::make(text: "Request Payment", callback_data: "request_payment")
+            );
+    }
+
+    public static function requestOrderConfirmation()
+    {
+
+        return ReplyKeyboardMarkup::make(resize_keyboard: true)
+            ->addRow(
+                KeyboardButton::make('❌Cancel')
+            )
+            ->addRow(
+                KeyboardButton::make("✔️Submit")
             );
     }
 }

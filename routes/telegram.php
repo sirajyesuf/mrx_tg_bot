@@ -33,6 +33,6 @@ $bot->onText('💳 Payment', PaymentHandler::class)
 
 $bot->onText('Help', HelpHandler::class);
 $bot->onCallbackQueryData('deny {parameter}', DenyHandler::class);
-$bot->fallback(function (Nutgram $bot) {
-    $bot->sendMessage('Sorry, I don\'t understand.');
-});
+// $bot->fallback(function (Nutgram $bot) {
+//     $bot->sendMessage('Sorry, I don\'t understand.');
+// });

@@ -13,7 +13,10 @@ class CampaignService extends Bot
 
     protected function getTelegramHtml($html)
     {
+        // remove html that not supported by telegram
         $text = strip_tags($html, ["br", "b", "i", "u", "strong", "span", "a", "code", "pre"]);
+        // replace <span></span> tag by <span class="tg-spoiler"></span>
+        $text = str_replace('<span', '<span class="tg-spoiler"', $text);
         $text = explode("<br />", $text);
         $text = implode("\n", $text);
         return $text;

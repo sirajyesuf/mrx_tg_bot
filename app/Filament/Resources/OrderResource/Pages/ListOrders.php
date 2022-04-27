@@ -29,7 +29,6 @@ class ListOrders extends ListRecords
 
         return [
 
-            // TextColumn::make('client.name')->label('Client'),
             TextColumn::make('client.tg_username')
                 ->url(fn (Order $record): string => "https://t.me/".$record->client->tg_username)
                 ->openUrlInNewTab()
@@ -38,8 +37,9 @@ class ListOrders extends ListRecords
             ->url(fn (Order $record): string => "campaigns/".$record->campaign->id)
             ->openUrlInNewTab()
             ->label('Campaign'),
-            TextColumn::make('payment_method'),
             TagsColumn::make('payment_method')->separator(),
+            TextColumn::make('payment_method_detail'),
+            TextColumn::make('email_address'),
             TextColumn::make('information')->default(''),
             TextColumn::make('proof')->limit(10)
                 ->url(fn (Order $record): string =>  asset($record->proof))

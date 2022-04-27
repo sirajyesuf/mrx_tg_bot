@@ -15,8 +15,6 @@ use App\Models\Client;
 use App\Http\Bot\Keyboard;
 use App\Models\Campaign;
 use Illuminate\Support\Str;
-use SergiX44\Nutgram\Telegram\Attributes\MessageTypes;
-use SergiX44\Nutgram\Telegram\Types\Media\File;
 
 class PaymentHandler extends Conversation
 {
@@ -31,7 +29,9 @@ class PaymentHandler extends Conversation
             'proof' => null,
             'file_id' => null,
             'information' => null,
-            'payment_method' => null
+            'payment_method' => null,
+            'payment_method_detail' => null,
+            'email_address' => null
 
 
         ];
@@ -50,13 +50,18 @@ class PaymentHandler extends Conversation
 
     public function collectAnswer(Nutgram $bot)
     {
+
+        dump($bot->message());
+
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $claims = $client->campaigns()->wherePivot('status', true)->get();
         $order = $bot->getUserData('order');
         $callback_query = $bot->callbackQuery();
         $message = $bot->message();
         $que = $bot->getUserData('que');
-        if ($bot->isCallbackQuery() and   in_array($callback_query->data, Campaign::all()->pluck('id')->toArray()) and $que = "askCampaign") {
+        dump($que);
+
+        if ($bot->isCallbackQuery() and   in_array((int)$callback_query->data, Campaign::all()->pluck('id')->toArray()) and $que == "askcampaign") {
             $campaign = Campaign::find($callback_query->data);
             $order['campaign_id'] = $campaign->id;
             $bot->setUserData('order', $order, $bot->chatId());
@@ -70,14 +75,7 @@ class PaymentHandler extends Conversation
         }
         if ($message and $que == 'asktouploadproof') {
             if ($message->text == "❌Cancel") {
-
-
-                $this->sendMessage($bot, 'cancelled.', [
-                    'reply_markup' => Keyboard::mainMenu()
-                ]);
-
-                $bot->deleteUserData('order');
-                $bot->deleteUserData('que');
+                $this->cancelOrder($bot);
             } else {
                 $photo = $message->photo[0];
                 $photo_id = $photo->file_id;
@@ -89,14 +87,40 @@ class PaymentHandler extends Conversation
                 $this->askPaymentMethod($bot);
             }
         }
-        if ($bot->isCallbackQuery() and $que == "askpaymentmethod") {
-            if ($callback_query->data == 'submit') {
+        if ($message and $que == "askpaymentmethoddetail") {
+
+            if ($message->text == "❌Cancel") {
+                $this->cancelOrder($bot);
+            } else {
+                $order['payment_method_detail'] = $message->text;
+                $bot->setUserData('order', $order, $bot->chatId());
+                $this->askEmailAddress($bot);
+            }
+        }
+
+        if ($message and $que == "askemailaddress") {
+
+
+
+            if ($message->text == "❌Cancel") {
+                $this->cancelOrder($bot);
+            } else {
+                $order['email_address'] = $message->text;
+                $bot->setUserData('order', $order, $bot->chatId());
+                $this->askConfirmation($bot);
+            }
+        }
+
+        if ($message and $que == "askconfirmation") {
+
+            $btn = $message->text;
+
+
+            if ($btn == '✔️Submit') {
                 // create the order
                 $file = $bot->getFile($order['file_id']);
                 $path = storage_path("app/public/" . $order['proof']);
                 $res = $bot->downloadFile($file, $path);
-                dump($order['proof']);
-                dump($res);
                 unset($order['file_id']);
                 $order['proof'] = "storage/" . $order['proof'];
                 $client->orders()->create($order);
@@ -106,24 +130,40 @@ class PaymentHandler extends Conversation
                     'reply_markup' => Keyboard::mainMenu()
                 ]);
             }
+
+            if ($btn == '❌Cancel') {
+                $this->cancelOrder($bot);
+            }
+        }
+
+
+        if ($bot->isCallbackQuery() and $que == "askpaymentmethod") {
+
             if (in_array($callback_query->data, Campaign::find($order['campaign_id'])->payment_methods)) {
                 $order['payment_method'] = $callback_query->data;
                 $bot->setUserData('order', $order, $bot->chatId());
-                $this->askPaymentMethod($bot);
+                $this->askPaymentMethodDetail($bot, strtolower($order['payment_method']));
             }
 
             return;
+            // if ($callback_query->data == 'submit') {
+            //     // create the order
+            //     $file = $bot->getFile($order['file_id']);
+            //     $path = storage_path("app/public/" . $order['proof']);
+            //     $res = $bot->downloadFile($file, $path);
+            //     unset($order['file_id']);
+            //     $order['proof'] = "storage/" . $order['proof'];
+            //     $client->orders()->create($order);
+            //     // send sucess message
+            //     $text = "the payment request send successfully. please await for approval.";
+            //     $this->sendMessage($bot, $text, [
+            //         'reply_markup' => Keyboard::mainMenu()
+            //     ]);
+            // }
         }
         if ($message) {
             if ($message->text == "❌Cancel") {
-
-
-                $this->sendMessage($bot, 'cancelled.', [
-                    'reply_markup' => Keyboard::mainMenu()
-                ]);
-
-                $bot->deleteUserData('order');
-                $bot->deleteUserData('que');
+                $this->cancelOrder($bot);
             }
         }
     }
@@ -171,26 +211,20 @@ class PaymentHandler extends Conversation
         $pay_mtds = InlineKeyboardMarkup::make();
         foreach ($campaign->payment_methods as $pay_mtd) {
 
-            if ($order['payment_method'] == $pay_mtd) {
-                $pay_mtds = $pay_mtds
-                    ->addRow(
-                        InlineKeyboardButton::make(text: "✅$pay_mtd", callback_data: $pay_mtd)
-                    );
-            } else {
-                $pay_mtds = $pay_mtds
-                    ->addRow(
-                        InlineKeyboardButton::make(text: $pay_mtd, callback_data: $pay_mtd)
-                    );
-            }
-        }
-
-        if ($order['payment_method']) {
-
+            // if ($order['payment_method'] == $pay_mtd) {
+            //     $pay_mtds = $pay_mtds
+            //         ->addRow(
+            //             InlineKeyboardButton::make(text: "✅$pay_mtd", callback_data: $pay_mtd)
+            //         );
+            // } 
+            // else {
             $pay_mtds = $pay_mtds
                 ->addRow(
-                    InlineKeyboardButton::make("✔️Submit", callback_data: "submit")
+                    InlineKeyboardButton::make(text: $pay_mtd, callback_data: $pay_mtd)
                 );
+            // }
         }
+
 
         $bot->setUserData('que', 'askpaymentmethod', $bot->chatId());
 
@@ -203,5 +237,62 @@ class PaymentHandler extends Conversation
                 'reply_markup' => $pay_mtds
             ]
         );
+    }
+    protected function askPaymentMethodDetail($bot, $pay_mtd)
+    {
+        $text = null;
+        if ($pay_mtd == "crypto") {
+            $text = "please enter your crypto wallet address?";
+        }
+        if ($pay_mtd == "amazone") {
+            $text = "please enter your amazone account?";
+        }
+        if ($pay_mtd == "paypal") {
+            $text = "please enter your paypal account?";
+        }
+
+        $this->sendMessage(
+            $bot,
+            $text
+        );
+
+
+
+        $bot->setUserData('que', 'askpaymentmethoddetail', $bot->chatId());
+    }
+
+    protected function askEmailAddress($bot)
+    {
+        $text = "please enter your Email Address?";
+        $this->sendMessage(
+            $bot,
+            $text
+        );
+        $bot->setUserData('que', 'askemailaddress', $bot->chatId());
+    }
+
+    protected function askConfirmation($bot)
+    {
+        $text = "please click the <b>Submit</b> button to send the payment request. <b>Cancel</b> button  to exit the process.";
+        $this->sendMessage(
+            $bot,
+            $text,
+            [
+                'parse_mode' => 'html',
+                'reply_markup' => Keyboard::requestOrderConfirmation()
+            ]
+        );
+        $bot->setUserData('que', 'askconfirmation', $bot->chatId());
+    }
+
+    protected function cancelOrder($bot)
+    {
+
+        $this->sendMessage($bot, 'cancelled.', [
+            'reply_markup' => Keyboard::mainMenu()
+        ]);
+
+        $bot->deleteUserData('order');
+        $bot->deleteUserData('que');
     }
 }

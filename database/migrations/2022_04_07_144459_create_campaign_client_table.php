@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('tg_message_id');
             $table->boolean('status')->default(false);
             $table->foreign('campaign_id')->references('id')->on('campaigns')->cascadeOnDelete();
-            $table->foreign('client_id')->references('id')->on('clients');
+            $table->foreign('client_id')->references('id')->on('clients')->cascadeOnDelete();
             $table->timestamps();
         });
     }

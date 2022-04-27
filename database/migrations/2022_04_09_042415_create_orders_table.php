@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('information')->nullable();
             $table->string('payment_method');
             $table->integer('status')->default(1);
-            $table->foreign('campaign_id')->references('id')->on('campaigns')->restrictOnDelete();
+            $table->foreign('campaign_id')->references('id')->on('campaigns')->cascadeOnDelete();
             $table->foreign('client_id')->references('id')->on('clients')->cascadeOnDelete();
             $table->timestamps();
         });

@@ -38,7 +38,7 @@ class ListCampaigns extends ListRecords
             TagsColumn::make('payment_methods')->label('payment_methods')->default('not applyed'),
             TextColumn::make('gm_claim_now_btn_num_click')->label('Num_Claim'),
             TextColumn::make('bm_apply_btn_active_duration')->label('Apply_Btn_Duration')
-                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration,$tz)->diffForHumans(Carbon::parse($record->updated_at,$tz))),
+                ->getStateUsing(fn ($record) => Carbon::parse($record->bm_apply_btn_active_duration, $tz)->diffForHumans(Carbon::parse($record->updated_at, $tz))),
 
         ];
     }
@@ -59,11 +59,7 @@ class ListCampaigns extends ListRecords
             ButtonAction::make('Publishe')
                 ->action('publisheCampaign')
                 ->requiresConfirmation()
-                ->color('primary'),
-            // IconButtonAction::make('view')
-            //     ->url(fn (Campaign $record): string => "campaigns/$record->id")
-            //     ->icon('heroicon-o-eye')
-
+                ->color('primary')
         ];
     }
 
@@ -88,7 +84,6 @@ class ListCampaigns extends ListRecords
     public function deleteCampaign(Campaign $record)
     {
         // check for the presence of previous post if found delete them first
-        dd("edit delete");
         if ($record->message_ids) {
 
             CampaignService::deleteGroupMessage($record->message_ids);

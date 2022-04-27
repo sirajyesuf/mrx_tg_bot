@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::table('campaign_client', function (Blueprint $table) {
             $table->boolean('notification_status')->default(false);
+            $table->bigInteger('claim_target_chat_id');
         });
     }
 

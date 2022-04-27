@@ -74,10 +74,11 @@ class PaymentHandler extends Conversation
             $this->askCampaign($bot, $claims);
         }
         if ($message and $que == 'asktouploadproof') {
+
             if ($message->text == "❌Cancel") {
                 $this->cancelOrder($bot);
             } else {
-                $photo = $message->photo[0];
+                $photo = end($message->photo);
                 $photo_id = $photo->file_id;
                 $order['file_id'] = $photo_id;
                 // name of the proof image

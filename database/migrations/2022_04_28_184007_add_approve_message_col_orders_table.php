@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->text('deny_message')->nullable();
-            
+
+            $table->text('approve_message')->nullable();
         });
     }
 

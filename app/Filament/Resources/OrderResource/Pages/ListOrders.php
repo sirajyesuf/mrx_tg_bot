@@ -15,6 +15,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\IconButtonAction;
 use Filament\Forms\Components\Textarea;
 use SergiX44\Nutgram\Nutgram;
+
 class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
@@ -23,20 +24,20 @@ class ListOrders extends ListRecords
     {
         return Order::query()->with(['client', 'campaign']);
     }
- 
+
     protected function getTableColumns(): array
     {
 
         return [
 
             TextColumn::make('client.tg_username')
-                ->url(fn (Order $record): string => "https://t.me/".$record->client->tg_username)
+                ->url(fn (Order $record): string => "https://t.me/" . $record->client->tg_username)
                 ->openUrlInNewTab()
                 ->label('Client'),
             TextColumn::make('campaign.title')
-            ->url(fn (Order $record): string => "campaigns/".$record->campaign->id)
-            ->openUrlInNewTab()
-            ->label('Campaign'),
+                ->url(fn (Order $record): string => "campaigns/" . $record->campaign->id)
+                ->openUrlInNewTab()
+                ->label('Campaign'),
             TagsColumn::make('payment_method')->separator(),
             TextColumn::make('payment_method_detail'),
             TextColumn::make('email_address'),
@@ -78,6 +79,10 @@ class ListOrders extends ListRecords
                 ->color('success')
                 ->icon('heroicon-o-check')
                 ->requiresConfirmation()
+                ->form([
+                    Textarea::make('approve_message')->label('message for client')
+                        ->required()
+                ])
                 ->hidden(fn (Order $record): bool => 1 == $record->status),
             IconButtonAction::make('deny')
                 ->action('deny')
@@ -95,27 +100,28 @@ class ListOrders extends ListRecords
     protected function getTableFilters(): array
     {
 
-        $clients=array();
-        foreach(Client::all() as $client){
-          $clients[$client->id] = $client['tg_username'];
+        $clients = array();
+        foreach (Client::all() as $client) {
+            $clients[$client->id] = $client['tg_username'];
         }
         return [
             SelectFilter::make('client')
-            ->options($clients)
-            ->column('client_id'),
-            
+                ->options($clients)
+                ->column('client_id'),
+
 
 
         ];
     }
 
 
-    public function approve(Nutgram $bot, $record)
+    public function approve(Nutgram $bot, $record, $data)
     {
 
-        $text = "your payment request approved.";
+        $text = "your payment request approved.\nMessage: " . $data['approve_message'];
         $record->update([
-            'status' => 2
+            'status' => 2,
+            'approve_message' => $data['approve_message']
 
         ]);
         ClientService::approve($bot, $text, $record->client->tg_user_id);

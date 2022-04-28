@@ -14,19 +14,13 @@ use App\Models\Interest;
 use App\Models\Country;
 use App\Models\Client;
 use App\Http\Bot\Keyboard;
+use App\Message;
 
 class RegistrationHandler extends Conversation
 {
     use Handler;
+    use Message;
     protected ?string $step = 'show';
-
-    protected $questions = [
-
-        'geo' => "Please choose  your Geo name?",
-        'prime' => "Do you have Prime account?",
-        'interestes' => "Please select one or more of your interests?"
-
-    ];
     public function show(Nutgram $bot)
     {
 
@@ -41,7 +35,7 @@ class RegistrationHandler extends Conversation
 
     public function create(Nutgram $bot)
     {
-        $text = "Alright,lets create account for you.";
+        $text = $this->my_account_introduction;
         $btn = ReplyKeyboardMarkup::make(resize_keyboard: true)
             ->addRow(
                 KeyboardButton::make('❌Cancel')

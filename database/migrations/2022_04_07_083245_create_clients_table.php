@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('prime');
             $table->string('geo');
             $table->json('interestes');
-            $table->integer('status')->default(1); //1for pending 2 approve 3 for denied
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }

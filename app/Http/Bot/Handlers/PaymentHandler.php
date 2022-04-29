@@ -15,10 +15,14 @@ use App\Models\Client;
 use App\Http\Bot\Keyboard;
 use App\Models\Campaign;
 use Illuminate\Support\Str;
+use App\Enums\Stats;
+use App\Models\Order;
+use App\Message;
 
 class PaymentHandler extends Conversation
 {
     use Handler;
+    use Message;
     protected ?string $step = 'index';
 
     public function index(Nutgram $bot)
@@ -38,20 +42,39 @@ class PaymentHandler extends Conversation
         $bot->setUserData('order', $order, $bot->chatId());
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $claims = $client->campaigns()->wherePivot('status', true)->get();
-        $bot->sendMessage(
-            'Alright lets request payment for you.',
-            [
-                'reply_markup' => Keyboard::cancelBtn()
-            ]
-        );
-        $this->next('collectAnswer');
-        $this->askCampaign($bot, $claims);
+        $claims = $claims->filter(function ($val, $ind) {
+
+            $approved_order = Order::where('campaign_id', $val->id)->where('status', Stats::Approve)->first();
+            return $approved_order ? false : true;
+        });
+
+        if ($claims->count()) {
+
+            $bot->sendMessage(
+                'Alright lets request payment for you.',
+                [
+                    'reply_markup' => Keyboard::cancelBtn()
+                ]
+            );
+            $this->next('collectAnswer');
+            $this->askCampaign($bot, $claims);
+        } else {
+
+            $bot->sendMessage(
+                $this->payout_already_requested,
+                [
+                    'reply_markup' => Keyboard::mainMenu()
+
+                ]
+            );
+
+            $this->end();
+        }
     }
 
     public function collectAnswer(Nutgram $bot)
     {
 
-        dump($bot->message());
 
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $claims = $client->campaigns()->wherePivot('status', true)->get();
@@ -59,10 +82,11 @@ class PaymentHandler extends Conversation
         $callback_query = $bot->callbackQuery();
         $message = $bot->message();
         $que = $bot->getUserData('que');
-        dump($que);
 
         if ($bot->isCallbackQuery() and   in_array((int)$callback_query->data, Campaign::all()->pluck('id')->toArray()) and $que == "askcampaign") {
             $campaign = Campaign::find($callback_query->data);
+            // check for campaign order status
+            
             $order['campaign_id'] = $campaign->id;
             $bot->setUserData('order', $order, $bot->chatId());
             CampaignService::requestPayment($bot, $campaign);

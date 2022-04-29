@@ -59,7 +59,9 @@ class ViewCampaign extends Page
     {
         return [
             ButtonAction::make('Edit')
-                ->url(fn (): string => $this->getResource()::getUrl('edit', $this->record->id))
+                ->url(fn (): string => $this->getResource()::getUrl('edit', $this->record->id)),
+            ButtonAction::make('Stats')
+                ->url(fn (): string => $this->getResource()::getUrl('stats', $this->record->id))
         ];
     }
 }

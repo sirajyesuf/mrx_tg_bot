@@ -6,32 +6,43 @@ use SergiX44\Nutgram\Nutgram;
 use App\Models\Client;
 use App\Models\Campaign;
 use Illuminate\Support\Arr;
+use App\Message;
 
 class ClaimProduct
 {
+    use Message;
+
     public function __invoke(Nutgram $bot, $next)
     {
         $parameters = $this->getParameters($bot);
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
         $campaign = Campaign::firstWhere('id', $parameters['campaign_id']);
         $num_claim = $campaign->clients()->wherePivot('status', 1)->count();
-        if (empty($campaign->gm_interest) and empty($campaign->gm_geo) and $num_claim < $campaign->gm_claim_now_btn_num_click) {
-            $next($bot);
-        } else {
-            $result = $this->clientCanClaim($campaign, $client);
-            if ($result and $num_claim < $campaign->gm_claim_now_btn_num_click) {
 
+        if ($num_claim < $campaign->gm_claim_now_btn_num_click) {
+
+            if (empty($campaign->gm_interest) and empty($campaign->gm_geo)) {
                 $next($bot);
             } else {
+                $result = $this->clientCanClaim($campaign, $client);
+                if ($result) {
 
-                $this->notify($bot, $client);
+                    $next($bot);
+                } else {
+
+                    $text = $this->ucant_claim_dueto_interestes_or_geo_filtration;
+
+                    $this->notify($bot, $text);
+                }
             }
+        } else {
+            $text = $this->ucant_claim_dueto_max_amount;
+            $this->notify($bot, $text);
         }
     }
 
-    protected function notify(Nutgram $bot, Client $client)
+    protected function notify(Nutgram $bot, $text)
     {
-        $text = "your are not legible to claim this campaign.sorry.";
         $bot->sendMessage(
             $text
         );

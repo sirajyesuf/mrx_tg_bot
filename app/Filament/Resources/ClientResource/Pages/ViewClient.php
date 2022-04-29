@@ -10,6 +10,6 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewClient extends ViewRecord
 {
     protected static string $resource = ClientResource::class;
-    protected static ?string $title = 'Claims';
+    protected static ?string $title = 'Client Detail & Statistics';
     protected static string $view = 'filament.resources.client-resource.pages.view-client';
 }

@@ -1,4 +1,87 @@
 <x-filament::page>
+    <h5 style="font-weight:bold">Client</h5>
+    <x-tables::container>
+        <div class="overflow-y-auto relative rounded-t-xl">
+            <x-tables::table header="Results">
+                <x-slot name="header">
+                    <x-tables::header-cell name="username">
+                        Username
+                    </x-tables::header-cell>
+                    <x-tables::header-cell name="geo">
+                        Geo
+                    </x-tables::header-cell>
+                    <x-tables::header-cell name="prime">
+                        Prime
+                    </x-tables::header-cell>
+                    <x-tables::header-cell name="status">
+                        Status
+                    </x-tables::header-cell>
+                    <x-tables::header-cell name="joined">
+                        Joined
+                    </x-tables::header-cell>
+                    <x-tables::header-cell name="interestes">
+                        Interestes
+                    </x-tables::header-cell>
+                    <x-tables::header-cell name="orders">
+                        Orders
+                    </x-tables::header-cell>
+                </x-slot>
+                @php
+
+                $client = $record;
+                $count_order = $client->orders()->count();
+                @endphp
+                <x-tables::row>
+                    <x-tables::cell class="px-4 py-3">
+
+                        <a href="http://t.me/{{$client['tg_username']}}" target="_blank" style="color: blueviolet;">
+                            {{$client['tg_username']}}
+                        </a>
+                    </x-tables::cell>
+
+                    <x-tables::cell class="px-4 py-3 text-bold">
+                        {{$client['geo']}}
+                    </x-tables::cell>
+                    <x-tables::cell class="px-4 py-3">
+
+                        @if($client['prime'] == 1)
+                        Yes
+                        @else
+                        No
+                        @endif
+                    </x-tables::cell>
+
+                    <x-tables::cell class="px-4 py-3">
+
+                        @if($client['status'] == \App\Enums\ClientStatus::Pending)
+                        Pending
+                        @elseif($client['status'] == \App\Enums\ClientStatus::Deny)
+                        Denied
+                        @elseif($client['status'] == \App\Enums\ClientStatus::Approve)
+                        Approved
+                        @endif
+                    </x-tables::cell>
+
+                    <x-tables::cell class="px-4 py-3">
+                        {{\Carbon\Carbon::parse($client['created_at'])->toFormattedDateString()}}
+                    </x-tables::cell>
+
+                    <x-tables::cell class="px-4 py-3 font-bold">
+                        {{implode(" , ",$client['interestes'])}}
+                    </x-tables::cell>
+                    <x-tables::cell class="px-4 py-3">
+                        {{$count_order}}
+                    </x-tables::cell>
+
+                </x-tables::row>
+            </x-tables::table>
+        </div>
+    </x-tables::container>
+
+
+
+
+    <hr>
     <h5 style="font-weight:bold">Statistics</h5>
 
     <x-tables::container>
@@ -21,11 +104,11 @@
                 $total_claims = $claims->count();
                 $history['total_claims'] = $total_claims;
                 $deny_claims = $claims->filter(function ($value, $key) {
-                return $value->status==0;
+                return $value->status== \App\Enums\ClaimStatus::Deny;
                 })->count();
                 $history['deny_claims'] = $deny_claims;
                 $apply_claims = $claims->filter(function ($value, $key) {
-                return $value->status==1;
+                return $value->status== \App\Enums\ClaimStatus::Apply;
                 })->count();
                 $history['apply_claims'] = $apply_claims;
                 $hh = array();

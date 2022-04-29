@@ -180,6 +180,7 @@ class CampaignResource extends Resource
             'create' => Pages\CreateCampaign::route('/create'),
             'edit' => Pages\EditCampaign::route('/{record}/edit'),
             'view' => Pages\ViewCampaign::route('/{record}'),
+            'stats' => Pages\StatsCampaign::route('{record}/stats')
         ];
     }
 }

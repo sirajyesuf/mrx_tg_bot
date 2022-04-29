@@ -110,10 +110,7 @@ class ListClients extends ListRecords
                 ->column('status'),
             SelectFilter::make('geo')
                 ->options($geo)
-                ->column('geo'),
-            // MultiSelectFilter::make('interest')
-            //     ->options($interestes)
-            //     ->column('interestes'),
+                ->column('geo')
 
 
 
@@ -124,8 +121,10 @@ class ListClients extends ListRecords
     {
         return [
 
-            Tables\Actions\LinkAction::make('claim')
-                ->url(fn (Client $record): string => "clients/$record->id")
+            // Tables\Actions\LinkAction::make('claim')
+            //     ->url(fn (Client $record): string => "clients/$record->id")
+
+            //
         ];
     }
 

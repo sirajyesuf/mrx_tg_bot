@@ -20,7 +20,7 @@ class ApplyButtonController extends Controller
 
         if ($campaign->num_applied_claim < $campaign->gm_claim_now_btn_num_click) {
 
-            if ($client->campaigns()->wherePivot('campaign_id', $campaign->id)->wherePivot('status', 0)->count() == 1) {
+            if ($client->campaigns()->wherePivot('campaign_id', $campaign->id)->wherePivot('status', ClaimStatus::Pending)->count() == 1) {
 
                 $client->campaigns()->updateExistingPivot($campaign->id, [
                     'status' => ClaimStatus::Apply,

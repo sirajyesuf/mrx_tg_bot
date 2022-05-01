@@ -22,6 +22,7 @@ class PaymentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')->required(),
+                Forms\Components\TextInput::make('message')->required()
             ]);
     }
 
@@ -29,7 +30,9 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name'), 
+                Tables\Columns\TextColumn::make('message'),
+
             ])
             ->filters([
                 //

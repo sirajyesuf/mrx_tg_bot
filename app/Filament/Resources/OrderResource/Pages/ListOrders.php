@@ -17,6 +17,8 @@ use Filament\Tables\Actions\IconButtonAction;
 use Filament\Forms\Components\Textarea;
 use SergiX44\Nutgram\Nutgram;
 
+
+
 class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
@@ -121,7 +123,7 @@ class ListOrders extends ListRecords
 
         $text = "your payment request approved.\nMessage: " . $data['approve_message'];
         $record->update([
-            'status' => 2,
+            'status' => OrderStatus::Approve,
             'approve_message' => $data['approve_message']
 
         ]);
@@ -135,7 +137,7 @@ class ListOrders extends ListRecords
 
         $text = "your payment request denied.\nReason: " . $data['deny_message'];
         $record->update([
-            'status' => 3,
+            'status' => OrderStatus::Deny,
             'deny_message' => $data['deny_message']
 
         ]);

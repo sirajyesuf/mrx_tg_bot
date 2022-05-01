@@ -4,13 +4,14 @@ namespace App\Http\Bot\Middleware;
 
 use SergiX44\Nutgram\Nutgram;
 use App\Models\Client;
+use App\Enums\ClaimStatus;
 
 class Claimer
 {
     public function __invoke(Nutgram $bot, $next)
     {
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
-        $claims = $client->campaigns()->wherePivot('status',1)->get();
+        $claims = $client->campaigns()->wherePivot('status',ClaimStatus::Apply)->get();
 
         $claims->count() != 0 ? $next($bot) : $this->Notify($bot);
     }

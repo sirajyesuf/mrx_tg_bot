@@ -18,6 +18,11 @@ use Illuminate\Support\Str;
 use App\Enums\Stats;
 use App\Models\Order;
 use App\Message;
+use App\Models\Payment;
+use App\Enums\OrderStatus;
+use App\Enums\ClaimStatus;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class PaymentHandler extends Conversation
 {
@@ -41,35 +46,16 @@ class PaymentHandler extends Conversation
         ];
         $bot->setUserData('order', $order, $bot->chatId());
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
-        $claims = $client->campaigns()->wherePivot('status', true)->get();
-        $claims = $claims->filter(function ($val, $ind) {
-
-            $approved_order = Order::where('campaign_id', $val->id)->where('status', Stats::Approve)->first();
-            return $approved_order ? false : true;
-        });
-
-        if ($claims->count()) {
-
-            $bot->sendMessage(
-                'Alright lets request payment for you.',
-                [
-                    'reply_markup' => Keyboard::cancelBtn()
-                ]
-            );
-            $this->next('collectAnswer');
-            $this->askCampaign($bot, $claims);
-        } else {
-
-            $bot->sendMessage(
-                $this->payout_already_requested,
-                [
-                    'reply_markup' => Keyboard::mainMenu()
-
-                ]
-            );
-
-            $this->end();
-        }
+        $claims = $client->campaigns()->wherePivot('status', ClaimStatus::Apply)->get();
+        $text = $this->payment_start_message;
+        $bot->sendMessage(
+            $text,
+            [
+                'reply_markup' => Keyboard::cancelBtn()
+            ]
+        );
+        $this->next('collectAnswer');
+        $this->askCampaign($bot, $claims);
     }
 
     public function collectAnswer(Nutgram $bot)
@@ -77,7 +63,7 @@ class PaymentHandler extends Conversation
 
 
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
-        $claims = $client->campaigns()->wherePivot('status', true)->get();
+        $claims = $client->campaigns()->wherePivot('status', ClaimStatus::Apply)->get();
         $order = $bot->getUserData('order');
         $callback_query = $bot->callbackQuery();
         $message = $bot->message();
@@ -85,11 +71,30 @@ class PaymentHandler extends Conversation
 
         if ($bot->isCallbackQuery() and   in_array((int)$callback_query->data, Campaign::all()->pluck('id')->toArray()) and $que == "askcampaign") {
             $campaign = Campaign::find($callback_query->data);
-            // check for campaign order status
-            
-            $order['campaign_id'] = $campaign->id;
-            $bot->setUserData('order', $order, $bot->chatId());
-            CampaignService::requestPayment($bot, $campaign);
+            $approved_n_pending_order  = DB::table('orders')
+                ->where([
+                    ['campaign_id', '=', $campaign->id],
+                    ['client_id', '=', $client->id],
+                    ['status', '=', OrderStatus::Approve]
+
+                ])
+                ->orWhere([
+                    ['campaign_id', '=', $campaign->id],
+                    ['client_id', '=', $client->id],
+                    ['status', '=', OrderStatus::Pending]
+                ])
+                ->get();
+
+            if ($approved_n_pending_order->count()) {
+                $bot->sendMessage(
+                    $this->payout_already_requested
+                );
+                $this->askCampaign($bot, $claims);
+            } else {
+                $order['campaign_id'] = $campaign->id;
+                $bot->setUserData('order', $order, $bot->chatId());
+                CampaignService::requestPayment($bot, $campaign);
+            }
         }
         if ($bot->isCallbackQuery() and   str::of($callback_query->data)->contains('request_payment')) {
             $this->askToUploadProof($bot);
@@ -150,7 +155,7 @@ class PaymentHandler extends Conversation
                 $order['proof'] = "storage/" . $order['proof'];
                 $client->orders()->create($order);
                 // send sucess message
-                $text = "the payment request send successfully. please await for approval.";
+                $text = $this->payment_success_message;
                 $this->sendMessage($bot, $text, [
                     'reply_markup' => Keyboard::mainMenu()
                 ]);
@@ -167,24 +172,10 @@ class PaymentHandler extends Conversation
             if (in_array($callback_query->data, Campaign::find($order['campaign_id'])->payment_methods)) {
                 $order['payment_method'] = $callback_query->data;
                 $bot->setUserData('order', $order, $bot->chatId());
-                $this->askPaymentMethodDetail($bot, strtolower($order['payment_method']));
+                $this->askPaymentMethodDetail($bot, $order['payment_method']);
             }
 
             return;
-            // if ($callback_query->data == 'submit') {
-            //     // create the order
-            //     $file = $bot->getFile($order['file_id']);
-            //     $path = storage_path("app/public/" . $order['proof']);
-            //     $res = $bot->downloadFile($file, $path);
-            //     unset($order['file_id']);
-            //     $order['proof'] = "storage/" . $order['proof'];
-            //     $client->orders()->create($order);
-            //     // send sucess message
-            //     $text = "the payment request send successfully. please await for approval.";
-            //     $this->sendMessage($bot, $text, [
-            //         'reply_markup' => Keyboard::mainMenu()
-            //     ]);
-            // }
         }
         if ($message) {
             if ($message->text == "❌Cancel") {
@@ -196,7 +187,7 @@ class PaymentHandler extends Conversation
     protected function askCampaign($bot, $claims)
     {
         $campaigns = InlineKeyboardMarkup::make();
-        $text = "please select one of the following product id to request for payment.";
+        $text = $this->payment_select_campaign;
         foreach ($claims as $claim) {
             $btn_text =  $claim->title . "( ID: " . $claim->claim->product_id . ")";
             $campaigns = $campaigns
@@ -217,12 +208,11 @@ class PaymentHandler extends Conversation
 
     protected function askToUploadProof($bot)
     {
-        $text = "please upload the proof. and if u need to give additional information pls write it as caption.";
+        $text = $this->payment_upload_proof;
 
         $this->sendMessage(
             $bot,
             $text,
-
         );
 
         $bot->setUserData('que', 'asktouploadproof', $bot->chatId());
@@ -231,23 +221,15 @@ class PaymentHandler extends Conversation
     protected function askPaymentMethod($bot)
     {
         $order = $bot->getUserData('order');
-        $text = "please select payment method";
+        $text = $this->payment_select_pay_mtd;
         $campaign = Campaign::find($order['campaign_id']);
         $pay_mtds = InlineKeyboardMarkup::make();
         foreach ($campaign->payment_methods as $pay_mtd) {
 
-            // if ($order['payment_method'] == $pay_mtd) {
-            //     $pay_mtds = $pay_mtds
-            //         ->addRow(
-            //             InlineKeyboardButton::make(text: "✅$pay_mtd", callback_data: $pay_mtd)
-            //         );
-            // } 
-            // else {
             $pay_mtds = $pay_mtds
                 ->addRow(
                     InlineKeyboardButton::make(text: $pay_mtd, callback_data: $pay_mtd)
                 );
-            // }
         }
 
 
@@ -265,20 +247,11 @@ class PaymentHandler extends Conversation
     }
     protected function askPaymentMethodDetail($bot, $pay_mtd)
     {
-        $text = null;
-        if ($pay_mtd == "crypto") {
-            $text = "please enter your crypto wallet address?";
-        }
-        if ($pay_mtd == "amazone") {
-            $text = "please enter your amazone account?";
-        }
-        if ($pay_mtd == "paypal") {
-            $text = "please enter your paypal account?";
-        }
+        $pay_mtd = Payment::where('name', $pay_mtd)->first();
 
         $this->sendMessage(
             $bot,
-            $text
+            $pay_mtd->message
         );
 
 
@@ -288,7 +261,7 @@ class PaymentHandler extends Conversation
 
     protected function askEmailAddress($bot)
     {
-        $text = "please enter your Email Address?";
+        $text = $this->payment_email_address;
         $this->sendMessage(
             $bot,
             $text
@@ -298,7 +271,7 @@ class PaymentHandler extends Conversation
 
     protected function askConfirmation($bot)
     {
-        $text = "please click the <b>Submit</b> button to send the payment request. <b>Cancel</b> button  to exit the process.";
+        $text = $this->payment_confirmation;
         $this->sendMessage(
             $bot,
             $text,

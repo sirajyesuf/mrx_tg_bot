@@ -97,6 +97,9 @@
                     <x-tables::header-cell name="status">
                         Apply Claims
                     </x-tables::header-cell>
+                    <x-tables::header-cell name="status">
+                        Pending Claims
+                    </x-tables::header-cell>
                 </x-slot>
                 @php
                 $history = array();
@@ -111,6 +114,10 @@
                 return $value->status== \App\Enums\ClaimStatus::Apply;
                 })->count();
                 $history['apply_claims'] = $apply_claims;
+                $pending_claims = $claims->filter(function ($value, $key) {
+                return $value->status== \App\Enums\ClaimStatus::Pending;
+                })->count();
+                $history['pending_claims'] = $pending_claims;
                 $hh = array();
                 $hh['history'] = $history;
                 @endphp
@@ -124,6 +131,9 @@
                     </x-tables::cell>
                     <x-tables::cell class="px-4 py-3">
                         {{ $history['apply_claims']}}
+                    </x-tables::cell>
+                    <x-tables::cell class="px-4 py-3">
+                        {{ $history['pending_claims']}}
                     </x-tables::cell>
                 </x-tables::row>
                 @endforeach

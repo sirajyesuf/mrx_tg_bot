@@ -17,7 +17,5 @@ return [
     'routes' => true,
 
     #destination channels/groups chatid
-    'target_chats' => [
-        -1001618497163
-    ]
+    'target_chats' => explode(',', env('TARGET_CHATS'))
 ];

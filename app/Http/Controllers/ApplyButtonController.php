@@ -9,9 +9,11 @@ use App\services\CampaignService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use App\Enums\ClaimStatus;
+use App\Message;
 
 class ApplyButtonController extends Controller
 {
+    use Message;
 
     public function apply(Client $client, Campaign $campaign)
     {
@@ -38,14 +40,14 @@ class ApplyButtonController extends Controller
                 return redirect($campaign->bm_apply_btn_url);
             } else {
                 if ($client->campaigns()->wherePivot('campaign_id', $campaign->id)->wherePivot('status', ClaimStatus::Apply)->count() == 1) {
-                    return "you already apply for the campaign.";
+                    return $this->apply_btn_ctr_already_applied;
                 } else {
-                    return "please first claim the campaign from the group(s) or channels(s).";
+                    return $this->apply_btn_ctr_claim_first;
                 }
             }
         } else {
 
-            return "too late to apply for this campaign " . $client->name . ".";
+            return $this->apply_btn_ctr_too_late_to_claim . $client->name . ".";
         }
     }
 }

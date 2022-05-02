@@ -4,9 +4,12 @@ namespace App\Http\Bot\Middleware;
 
 use SergiX44\Nutgram\Nutgram;
 use App\Models\Client;
+use App\Message;
 
 class Approved
 {
+    use Message;
+
     public function __invoke(Nutgram $bot, $next)
     {
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
@@ -16,13 +19,13 @@ class Approved
     protected function notify(Nutgram $bot, Client $client)
     {
         if ($client->status == 1) {
-            $text = "your account is pending. please await for approval.";
+            $text = $this->approved_pending_acount;
             $bot->sendMessage(
                 $text
             );
         }
         if ($client->status == 3) {
-            $text = "your account is denied. please await for approval.";
+            $text = $this->approved_denied_account;
             $bot->sendMessage(
                 $text
             );

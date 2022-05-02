@@ -11,6 +11,7 @@ use App\services\ClientService;
 use Carbon\Carbon as CarbonCarbon;
 use Filament\Forms\Components\Card;
 use App\Models\CampaignClient;
+use App\Enums\ClaimStatus;
 
 class ClaimDeleter extends Command
 {
@@ -36,15 +37,15 @@ class ClaimDeleter extends Command
      */
     public function handle()
     {
-
+        $num_mint_to_delete_pending_claim = (int) env('NUMBER_MINT_TO_DELETE_PENDING_CLAIM');
         // get all campaign where the num applyied claim lessthan the expected num of claim
         $campaigns = Campaign::whereColumn('num_applied_claim', '<', 'gm_claim_now_btn_num_click')->get();
         foreach ($campaigns as $campaign) {
             $now = Carbon::now();
             $dur = Carbon::parse($campaign->bm_apply_btn_active_duration)->diffAsCarbonInterval(Carbon::parse($campaign->updated_at));
-            $notification_dur = Carbon::parse($campaign->bm_apply_btn_active_duration)->subMinutes(2)->diffAsCarbonInterval(Carbon::parse($campaign->updated_at));
+            $notification_dur = Carbon::parse($campaign->bm_apply_btn_active_duration)->subMinutes($num_mint_to_delete_pending_claim)->diffAsCarbonInterval(Carbon::parse($campaign->updated_at));
 
-            $clients = $campaign->clients()->wherePivot('status', 0)->get();
+            $clients = $campaign->clients()->wherePivot('status', ClaimStatus::Pending)->get();
             foreach ($clients as $client) {
 
                 $past = Carbon::parse($client->claim->created_at);
@@ -58,19 +59,10 @@ class ClaimDeleter extends Command
                 }
                 if ($res->greaterThanOrEqualTo($notification_dur) and $client->notification_status == 0) {
                     //send notification to client
-                    $text = "hello $client->name please  apply the campaign with in the next 1 min. we are going to delete the campaign.";
+                    $text = "hello $client->name please  apply the campaign with in the next min " . $num_mint_to_delete_pending_claim . " we are going to delete the campaign.";
                     ClientService::sendNotification($client, $text);
                 }
             }
         }
-
-        // $client = Client::first();
-        $now = Carbon::now();
-        $dur = $now->addMinute(10)->diffAsCarbonInterval($now);
-        dump($dur);
-        $past = $now->subMinutes(10);
-        $re = $now->diffAsCarbonInterval($past);
-        dump($re);
-        dd($re->equalTo($dur));
     }
 }

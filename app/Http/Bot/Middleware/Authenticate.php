@@ -4,9 +4,12 @@ namespace App\Http\Bot\Middleware;
 
 use SergiX44\Nutgram\Nutgram;
 use App\Models\Client;
+use App\Message;
 
 class Authenticate
 {
+    use Message;
+
     public function __invoke(Nutgram $bot, $next)
     {
         $client = Client::firstWhere('tg_user_id', $bot->chatId());
@@ -15,7 +18,7 @@ class Authenticate
 
     protected function askToCreateAccount(Nutgram $bot)
     {
-        $text = "To claim the product you need to register one-time.use the \n<b>My Account</b> button from main menu.";
+        $text = $this->authenticate_text;
         $bot->sendMessage(
             $text,
             [

@@ -16,7 +16,7 @@ use App\Models\Client;
 use App\Http\Bot\Keyboard;
 use App\Message;
 
-class RegistrationHandler extends Conversation
+class AccountHandler extends Conversation
 {
     use Handler;
     use Message;

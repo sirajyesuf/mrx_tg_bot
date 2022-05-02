@@ -104,19 +104,7 @@ class CampaignService extends Bot
         // remove unsupported html tags
         $html = new HTML2TEXT($campaign->gm_text);
         $text = $html->getText();
-        // $photo = asset($campaign->bm_image);
 
-        // dump($photo);
-
-        // $response = $bot->sendPhoto(
-        //     $photo,
-        //     [
-        //         'chat_id' => $target_user_id,
-        //         'caption' => $text,
-        //         'parse_mode' => 'html',
-        //         'reply_markup' => $btn
-        //     ]
-        // );
 
         $response = $bot->editMessageText(
             $text,
@@ -147,6 +135,7 @@ class CampaignService extends Bot
     {
         $bot = (new self())->bot;
         $target_chats  = config('nutgram.target_chats');
+
 
         for ($i = 0; $i < count($target_chats); $i++) {
             try {

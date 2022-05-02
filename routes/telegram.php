@@ -11,7 +11,7 @@ use App\Http\Bot\Middleware\OnlyClaimOnce;
 use App\Http\Bot\Middleware\Claimer;
 use App\Http\Bot\Middleware\ClaimProduct;
 use App\Http\Bot\Handlers\StartHandler;
-use App\Http\Bot\Handlers\RegistrationHandler;
+use App\Http\Bot\Handlers\AccountHandler;
 use App\Http\Bot\Handlers\ClaimHandler;
 use App\Http\Bot\Handlers\HelpHandler;
 use App\Http\Bot\Handlers\PaymentHandler;
@@ -24,7 +24,7 @@ $bot->onCommand('start {parameter}', ClaimHandler::class)
     ->middleware(OnlyClaimOnce::class)
     ->middleware(Approved::class)
     ->middleware(Authenticate::class);
-$bot->onText('👤 My Account', RegistrationHandler::class)
+$bot->onText('👤 My Account', AccountHandler::class)
     ->middleware(VerifyMember::class);
 $bot->onText('💳 Payment', PaymentHandler::class)
     ->middleware(Claimer::class)

@@ -5,9 +5,6 @@ namespace App\Http\Bot\Handlers;
 use App\Http\Bot\Handlers\Handler;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Conversations\Conversation;
-use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
-use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardRemove;
-use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use App\services\CampaignService;
@@ -15,13 +12,10 @@ use App\Models\Client;
 use App\Http\Bot\Keyboard;
 use App\Models\Campaign;
 use Illuminate\Support\Str;
-use App\Enums\Stats;
-use App\Models\Order;
 use App\Message;
 use App\Models\Payment;
 use App\Enums\OrderStatus;
 use App\Enums\ClaimStatus;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class PaymentHandler extends Conversation

@@ -6,9 +6,12 @@ use SergiX44\Nutgram\Nutgram;
 use App\Models\Client;
 use App\Models\Campaign;
 use Illuminate\Support\Str;
+use App\Message;
 
 class OnlyClaimOnce
 {
+    use Message;
+
     public function __invoke(Nutgram $bot, $next)
     {
 
@@ -21,7 +24,7 @@ class OnlyClaimOnce
 
     protected function notify(Nutgram $bot)
     {
-        $text = "your already claimed this campaign.";
+        $text = $this->claim_once_text;
         $bot->sendMessage(
             $text
         );
